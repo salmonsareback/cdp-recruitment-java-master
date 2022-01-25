@@ -1,4 +1,4 @@
-package adeo.leroymerlin.cdp;
+package adeo.leroymerlin.cdp.models;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

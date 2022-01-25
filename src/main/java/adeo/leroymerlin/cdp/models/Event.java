@@ -1,4 +1,6 @@
-package adeo.leroymerlin.cdp;
+package adeo.leroymerlin.cdp.models;
+
+import adeo.leroymerlin.cdp.models.Band;
 
 import javax.persistence.*;
 import java.util.Set;

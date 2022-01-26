@@ -18,6 +18,11 @@ public class EventController {
         this.eventService = eventService;
     }
 
+    @RequestMapping(value="/test", method=RequestMethod.GET)
+    public String test(){
+        return "Hello, this is a test";
+    }
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public List<Event> findEvents() {
         return eventService.getEvents();

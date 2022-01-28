@@ -3,7 +3,9 @@ package adeo.leroymerlin.cdp.contollers;
 import adeo.leroymerlin.cdp.services.EventService;
 import adeo.leroymerlin.cdp.models.Event;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
@@ -39,6 +41,15 @@ public class EventController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public void updateEvent(@PathVariable Long id, @RequestBody Event event) {
+    public Event updateEvent(@PathVariable Long id, @RequestBody Event event) {
+        if(!event.getId().equals(id)) throw new HttpClientErrorException(HttpStatus.CONFLICT, "Inconsistant identifier as parameter and in body");
+        Event updatedEvent = eventService.update(event);
+        if(updatedEvent == null) throw new HttpClientErrorException(HttpStatus.NOT_MODIFIED,"Unable to update event");
+        return event;
+    }
+
+    @RequestMapping(value = "", method = RequestMethod.POST)
+    public Event updateEvent( @RequestBody Event event) {
+        return eventService.create(event);
     }
 }

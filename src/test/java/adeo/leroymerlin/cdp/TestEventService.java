@@ -17,34 +17,22 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class TestEventService {
 
     @Autowired
-    EventRepository eventRepository;
-
-    @Autowired
     EventService eventService;
 
-    @Test
-//     Database is refreshed and populated at each run
-//     Event 10001 is populated
-    public void eventHaveBeenPopulatedTestedByRepository(){
-        Optional<Event> event=eventRepository.findById(1001L);
-        assertThat(event.isPresent()).isTrue();
-    }
-    @Test
-    public void deletingEventByIdWithRepository(){
-        eventRepository.deleteById(1004L);
-        Optional<Event> event=eventRepository.findById(1004L);
-        assertThat(event.isPresent()).isFalse();
-
+     @Test
+    public void createEventWithService(){
+        Event event = new Event("Jazz Lille",3, "No comments");
+        Event newEvent = eventService.create(event);
+        assertThat(newEvent.getId()).isNotNull();
+        assertThat(newEvent.getTitle()).isEqualTo("Jazz Lille");
     }
 
-//    @Test
-//    public void removeEventByIdWithRepository(){
-////        org.hsqldb.util.DatabaseManagerSwing.main(new String[] {
-////                "--url",  "jdbc:hsqldb:mem:testdb", "--noexit"
-////        });
-//        eventRepository.removeById(1001L);
-//        Optional<Event> event=eventRepository.findById(1001L);
-//        assertThat(event.isPresent()).isFalse();
-//
-//    }
+    @Test
+    public void updateEventWithService(){
+        Event event = new Event(1000L,"GrasRock Metal Meeting",2, "Not Pop, it is rock & roll !");
+        Event newEvent = eventService.update(event);
+        assertThat(newEvent.getId()).isEqualTo(1000L);
+        assertThat(newEvent.getTitle()).isEqualTo("GrasRock Metal Meeting");
+    }
+
 }

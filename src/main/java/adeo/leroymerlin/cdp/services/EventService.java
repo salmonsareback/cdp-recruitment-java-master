@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EventService {
@@ -32,5 +33,26 @@ public class EventService {
         // Filter the events list in pure JAVA here
 
         return events;
+    }
+
+    public Event create(Event event){
+        // Let's be sure that the id is null
+        event.setId(null);
+        // We should not create an event and link bands at same time
+        event.setBands(null);
+        return eventRepository.save(event);
+    }
+
+    public Event update(Event event){
+        Optional<Event> previous = eventRepository.findById(event.getId());
+        if(previous.isPresent()) {
+            // Preserve url image
+            if((event.getImgUrl()==null || event.getImgUrl().isBlank()) && (previous.get().getImgUrl() != null && !previous.get().getImgUrl().isBlank())){
+                event.setImgUrl(previous.get().getImgUrl());
+            }
+            return eventRepository.save(event);
+        }else{
+            return null;
+        }
     }
 }

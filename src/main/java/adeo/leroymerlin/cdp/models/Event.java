@@ -19,11 +19,36 @@ public class Event {
     @OneToMany(fetch=FetchType.EAGER)
 //    @ManyToMany(fetch=FetchType.EAGER)
 //    @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id")},inverseJoinColumns={@JoinColumn(name="bands_id")})
+
     private Set<Band> bands = new HashSet<Band>();
 
     private Integer nbStars;
 
     private String comment;
+
+    public Event(){};
+
+    public Event(Long id, String title, String imgUrl, Set<Band> bands, Integer nbStars, String comment) {
+        this.id = id;
+        this.title = title;
+        this.imgUrl = imgUrl;
+        this.bands = bands;
+        this.nbStars = nbStars;
+        this.comment = comment;
+    }
+
+    public Event(String title, Integer nbStars, String comment) {
+        this.title = title;
+        this.nbStars = nbStars;
+        this.comment = comment;
+    }
+
+    public Event(Long id, String title, Integer nbStars, String comment) {
+        this.id = id;
+        this.title = title;
+        this.nbStars = nbStars;
+        this.comment = comment;
+    }
 
     public Long getId() {
         return id;

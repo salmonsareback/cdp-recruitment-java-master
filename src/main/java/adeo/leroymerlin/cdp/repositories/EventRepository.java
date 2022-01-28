@@ -10,11 +10,13 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public interface EventRepository extends Repository<Event, Long> {
 
+    List<Event> findAllBy();
+
+    Optional<Event> findById(Long eventId);
 
     @Transactional
     void deleteById(Long eventId);
 
-    Optional<Event> findById(Long eventId);
 
 //     @Transactional
 //    default void removeById(Long eventId){
@@ -27,6 +29,6 @@ public interface EventRepository extends Repository<Event, Long> {
 //        }
 //    }
 
-    List<Event> findAllBy();
-
+    @Transactional
+    Event save(Event event);
 }

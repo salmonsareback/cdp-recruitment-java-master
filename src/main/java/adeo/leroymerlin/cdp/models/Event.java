@@ -16,9 +16,9 @@ public class Event {
 
     private String imgUrl;
 
-    @OneToMany(fetch=FetchType.EAGER)
-//    @ManyToMany
-//    @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id")},inverseJoinColumns={@JoinColumn(name="band_id")})
+//    @OneToMany(fetch=FetchType.EAGER)
+    @ManyToMany(fetch=FetchType.EAGER)
+    @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id")},inverseJoinColumns={@JoinColumn(name="bands_id")})
     private Set<Band> bands = new HashSet<Band>();
 
     private Integer nbStars;

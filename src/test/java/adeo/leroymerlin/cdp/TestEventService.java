@@ -3,6 +3,7 @@ package adeo.leroymerlin.cdp;
 import adeo.leroymerlin.cdp.models.Event;
 import adeo.leroymerlin.cdp.repositories.EventRepository;
 import adeo.leroymerlin.cdp.services.EventService;
+import org.hsqldb.util.DatabaseManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +29,18 @@ public class TestEventService {
     }
     @Test
     public void deletingEventByIdWitRepository(){
-        eventRepository.deleteById(1001L);
+        eventRepository.deleteById(1005L);
+        Event event=eventRepository.findById(1005L);
+        assertThat(event).isNull();
+
+    }
+
+    @Test
+    public void removeEventByIdWitRepository(){
+//        org.hsqldb.util.DatabaseManagerSwing.main(new String[] {
+//                "--url",  "jdbc:hsqldb:mem:testdb", "--noexit"
+//        });
+        eventRepository.removeById(1001L);
         Event event=eventRepository.findById(1001L);
         assertThat(event).isNull();
 

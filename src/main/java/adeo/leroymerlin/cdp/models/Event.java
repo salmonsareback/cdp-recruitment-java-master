@@ -3,6 +3,7 @@ package adeo.leroymerlin.cdp.models;
 import adeo.leroymerlin.cdp.models.Band;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -16,7 +17,9 @@ public class Event {
     private String imgUrl;
 
     @OneToMany(fetch=FetchType.EAGER)
-    private Set<Band> bands;
+//    @ManyToMany
+//    @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id")},inverseJoinColumns={@JoinColumn(name="band_id")})
+    private Set<Band> bands = new HashSet<Band>();
 
     private Integer nbStars;
 
@@ -52,6 +55,11 @@ public class Event {
 
     public void setBands(Set<Band> bands) {
         this.bands = bands;
+    }
+
+    public void removeBand(Band band){
+        this.bands.remove(band);
+//        band.getEvents().remove(this);
     }
 
     public Integer getNbStars() {

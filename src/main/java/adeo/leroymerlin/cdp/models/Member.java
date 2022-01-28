@@ -12,8 +12,8 @@ public class Member {
 
     String name;
 
-    @ManyToMany(mappedBy = "members")
-    private Set<Band> bands=new HashSet<>();
+//    @ManyToMany(mappedBy = "members")
+//    private Set<Band> bands=new HashSet<>();
 
     public String getName() {
         return name;

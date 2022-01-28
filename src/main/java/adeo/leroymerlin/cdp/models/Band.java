@@ -13,14 +13,14 @@ public class Band {
 
     private String name;
 
-//    @OneToMany(fetch=FetchType.EAGER)
-    @ManyToMany
-    @JoinTable(name="band_members", joinColumns = {@JoinColumn(name="band_id")}, inverseJoinColumns = {@JoinColumn(name="members_id")})
+    @OneToMany(fetch=FetchType.EAGER)
+//    @ManyToMany
+//    @JoinTable(name="band_members", joinColumns = {@JoinColumn(name="band_id")}, inverseJoinColumns = {@JoinColumn(name="members_id")})
     private Set<Member> members=new HashSet<Member>();
 
-    @ManyToMany(mappedBy = "bands")
+//    @ManyToMany(mappedBy = "bands")
 //    @JoinTable(name="event_bands", joinColumns = {@JoinColumn(name="bands_id")}, inverseJoinColumns = {@JoinColumn(name="event_id")})
-    private Set<Event> events=new HashSet<>();
+//    private Set<Event> events=new HashSet<>();
 
     public Set<Member> getMembers() {
         return members;

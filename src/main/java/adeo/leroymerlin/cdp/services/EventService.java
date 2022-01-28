@@ -23,8 +23,8 @@ public class EventService {
 
     public void delete(Long id) {
 
-//        eventRepository.deleteById(id);
-        eventRepository.removeById(id);
+        eventRepository.deleteById(id);
+//        eventRepository.removeById(id);
     }
 
     public List<Event> getFilteredEvents(String query) {

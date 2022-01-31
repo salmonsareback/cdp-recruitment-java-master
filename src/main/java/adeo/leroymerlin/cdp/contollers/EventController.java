@@ -52,4 +52,17 @@ public class EventController {
     public Event updateEvent( @RequestBody Event event) {
         return eventService.create(event);
     }
-}
+
+
+    @PutMapping(value="/{event_id}/showsband/{band_id}")
+    public Event showsBand(@PathVariable Long event_id,@PathVariable Long band_id){
+        Event updatedEvent = eventService.addBandToEvent(event_id, band_id);
+        return updatedEvent;
+    }
+
+    @DeleteMapping(value="/{event_id}/doesnotshowband/{band_id}")
+    public Event notShowsBand(@PathVariable Long event_id,@PathVariable Long band_id){
+        Event updatedEvent = eventService.removeBandFromEvent(event_id,band_id);
+        if(updatedEvent == null) throw new HttpClientErrorException(HttpStatus.NOT_FOUND,"Event id "+event_id+" not found or not including band "+band_id);
+        return updatedEvent;
+    }}

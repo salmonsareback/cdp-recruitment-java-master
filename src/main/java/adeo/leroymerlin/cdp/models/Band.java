@@ -16,7 +16,7 @@ public class Band {
     @OneToMany(fetch=FetchType.EAGER)
 //    @ManyToMany
 //    @JoinTable(name="band_members", joinColumns = {@JoinColumn(name="band_id")}, inverseJoinColumns = {@JoinColumn(name="members_id")})
-    private Set<Member> members=new HashSet<Member>();
+    private Set<Member> members=new HashSet<>();
 
 //    @ManyToMany(mappedBy = "bands")
 //    @JoinTable(name="event_bands", joinColumns = {@JoinColumn(name="bands_id")}, inverseJoinColumns = {@JoinColumn(name="event_id")})
@@ -42,6 +42,11 @@ public class Band {
 //        this.events.remove(event);
 //        event.getBands().remove(this);
 //    }
+
+
+    public Long getId() {
+        return id;
+    }
 
     public String getName() {
         return name;

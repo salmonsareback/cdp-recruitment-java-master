@@ -20,13 +20,13 @@ public class Event {
 //    @ManyToMany(fetch=FetchType.EAGER)
 //    @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id")},inverseJoinColumns={@JoinColumn(name="bands_id")})
 
-    private Set<Band> bands = new HashSet<Band>();
+    private Set<Band> bands = new HashSet<>();
 
     private Integer nbStars;
 
     private String comment;
 
-    public Event(){};
+    public Event(){}
 
     public Event(Long id, String title, String imgUrl, Set<Band> bands, Integer nbStars, String comment) {
         this.id = id;
@@ -82,10 +82,13 @@ public class Event {
         this.bands = bands;
     }
 
+    public void addBand(Band band){ this.bands.add(band);}
+
     public void removeBand(Band band){
         this.bands.remove(band);
 //        band.getEvents().remove(this);
     }
+
 
     public Integer getNbStars() {
         return nbStars;
@@ -102,4 +105,5 @@ public class Event {
     public void setComment(String comment) {
         this.comment = comment;
     }
+
 }

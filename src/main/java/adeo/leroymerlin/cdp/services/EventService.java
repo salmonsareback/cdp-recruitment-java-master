@@ -1,6 +1,8 @@
 package adeo.leroymerlin.cdp.services;
 
+import adeo.leroymerlin.cdp.models.Band;
 import adeo.leroymerlin.cdp.models.Event;
+import adeo.leroymerlin.cdp.repositories.BandRepository;
 import adeo.leroymerlin.cdp.repositories.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,9 @@ import java.util.Optional;
 public class EventService {
 
     private final EventRepository eventRepository;
+
+    @Autowired
+    private BandRepository bandRepository;
 
     @Autowired
     public EventService(EventRepository eventRepository) {
@@ -55,6 +60,21 @@ public class EventService {
                 event.setImgUrl(previous.get().getImgUrl());
             }
             return eventRepository.save(event);
+        }else{
+            return null;
+        }
+    }
+
+    @Transactional
+    public Event removeBandFromEvent(Long event_id, Long band_id){
+        return eventRepository.removeBandByIds(event_id, band_id);
+    }
+
+    @Transactional
+    public Event addBandToEvent(Long event_id, Long band_id) {
+        Optional<Band> bandToAdd = bandRepository.findById(band_id);
+        if (eventRepository.findById(event_id) != null &&  bandToAdd.isPresent()) {
+            return eventRepository.addBandToEventId(event_id, bandToAdd.get());
         }else{
             return null;
         }

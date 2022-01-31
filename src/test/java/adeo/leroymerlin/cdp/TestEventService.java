@@ -19,7 +19,11 @@ public class TestEventService {
     @Autowired
     EventService eventService;
 
-     @Test
+    @Autowired
+    EventRepository eventRepository;
+
+
+    @Test
     public void createEventWithService(){
         Event event = new Event("Jazz Lille",3, "No comments");
         Event newEvent = eventService.create(event);
@@ -35,4 +39,11 @@ public class TestEventService {
         assertThat(newEvent.getTitle()).isEqualTo("GrasRock Metal Meeting");
     }
 
+    @Test
+    public void deletingEventByIdWithServiceIsFlushed(){
+        eventService.delete(1004L);
+        Optional<Event> event=eventRepository.findById(1004L);
+        assertThat(event.isPresent()).isFalse();
+
+    }
 }

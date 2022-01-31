@@ -26,10 +26,10 @@ public class TestEventRepository {
         assertThat(event.isPresent()).isTrue();
     }
     @Test
-    public void deletingEventByIdWithRepository(){
+    public void deletingEventByIdWithRepositoryIsNotFlushed(){
         eventRepository.deleteById(1004L);
         Optional<Event> event=eventRepository.findById(1004L);
-        assertThat(event.isPresent()).isFalse();
+        assertThat(event.isPresent()).isTrue();
 
     }
 

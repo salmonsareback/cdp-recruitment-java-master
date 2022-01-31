@@ -4,6 +4,7 @@ import adeo.leroymerlin.cdp.models.Event;
 import adeo.leroymerlin.cdp.repositories.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,7 @@ public class EventService {
         return eventRepository.findAllBy();
     }
 
+    @Transactional
     public void delete(Long id) {
 
         eventRepository.deleteById(id);
@@ -35,6 +37,7 @@ public class EventService {
         return events;
     }
 
+    @Transactional
     public Event create(Event event){
         // Let's be sure that the id is null
         event.setId(null);
@@ -43,6 +46,7 @@ public class EventService {
         return eventRepository.save(event);
     }
 
+    @Transactional
     public Event update(Event event){
         Optional<Event> previous = eventRepository.findById(event.getId());
         if(previous.isPresent()) {

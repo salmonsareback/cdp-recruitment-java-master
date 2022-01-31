@@ -14,7 +14,6 @@ public interface EventRepository extends Repository<Event, Long> {
 
     Optional<Event> findById(Long eventId);
 
-    @Transactional
     void deleteById(Long eventId);
 
 
@@ -29,6 +28,5 @@ public interface EventRepository extends Repository<Event, Long> {
 //        }
 //    }
 
-    @Transactional
     Event save(Event event);
 }

@@ -1,5 +1,6 @@
 package adeo.leroymerlin.cdp;
 
+import adeo.leroymerlin.cdp.models.Band;
 import adeo.leroymerlin.cdp.models.Event;
 import adeo.leroymerlin.cdp.repositories.EventRepository;
 import adeo.leroymerlin.cdp.services.EventService;
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -44,6 +47,13 @@ public class TestEventService {
         eventService.delete(1004L);
         Optional<Event> event=eventRepository.findById(1004L);
         assertThat(event.isPresent()).isFalse();
+    }
+
+    @Test
+    public void bands1000And1002ShowEvents(){
+        List<Long> identifiers =  Arrays.asList(1000L,1002L);
+        List<Band> bands = eventService.listOfBandIdentifiersWithEvents(identifiers);
+        assertThat(bands.size()).isGreaterThan(0);
 
     }
 }

@@ -16,10 +16,9 @@ public class Event {
 
     private String imgUrl;
 
-    @OneToMany(fetch=FetchType.EAGER)
-//    @ManyToMany(fetch=FetchType.EAGER)
-//    @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id")},inverseJoinColumns={@JoinColumn(name="bands_id")})
-
+//    @OneToMany(fetch=FetchType.EAGER)
+    @ManyToMany(fetch=FetchType.EAGER)
+    @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id")},inverseJoinColumns={@JoinColumn(name="bands_id")})
     private Set<Band> bands = new HashSet<>();
 
     private Integer nbStars;
@@ -35,6 +34,10 @@ public class Event {
         this.bands = bands;
         this.nbStars = nbStars;
         this.comment = comment;
+    }
+    public Event( String title, String imgUrl) {
+        this.title = title;
+        this.imgUrl = imgUrl;
     }
 
     public Event(String title, Integer nbStars, String comment) {

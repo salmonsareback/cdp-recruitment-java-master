@@ -79,4 +79,9 @@ public class EventService {
             return null;
         }
     }
+
+    public List<Band> listOfBandIdentifiersWithEvents   (List<Long> identifiers){
+        List<Band> eventsWithselectionOfBandsWithEvents = bandRepository.bandsWithEventsFromAListOfBandIdentifiers(identifiers);
+        return eventsWithselectionOfBandsWithEvents;
+    }
 }

@@ -2,6 +2,7 @@ package adeo.leroymerlin.cdp.DTO;
 
 import adeo.leroymerlin.cdp.models.Band;
 
+import java.util.List;
 import java.util.Set;
 
 public class EventWithBandOfIdolDto {
@@ -9,7 +10,7 @@ public class EventWithBandOfIdolDto {
 
     private String imgUrl;
 
-    private Set<Band> bands;
+    private List<BandWithIdolDto> bands;
 
     public EventWithBandOfIdolDto(String title, String imgUrl) {
         this.title = title;
@@ -32,11 +33,11 @@ public class EventWithBandOfIdolDto {
         this.imgUrl = imgUrl;
     }
 
-    public Set<Band> getBands() {
+    public List<BandWithIdolDto> getBands() {
         return bands;
     }
 
-    public void setBands(Set<Band> bands) {
+    public void setBands(List<BandWithIdolDto> bands) {
         this.bands = bands;
     }
 }

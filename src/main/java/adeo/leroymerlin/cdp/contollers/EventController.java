@@ -1,5 +1,6 @@
 package adeo.leroymerlin.cdp.contollers;
 
+import adeo.leroymerlin.cdp.DTO.EventWithBandOfIdolDto;
 import adeo.leroymerlin.cdp.services.EventService;
 import adeo.leroymerlin.cdp.models.Event;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class EventController {
     }
 
     @RequestMapping(value = "/search/{query}", method = RequestMethod.GET)
-    public List<Event> findEvents(@PathVariable String query) {
+    public List<EventWithBandOfIdolDto> findEvents(@PathVariable String query) {
         return eventService.getFilteredEvents(query);
     }
 

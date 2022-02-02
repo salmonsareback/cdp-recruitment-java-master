@@ -46,6 +46,12 @@ public class Event {
         this.comment = comment;
     }
 
+    public Event(Long id, String title, String imgUrl) {
+        this.id = id;
+        this.title = title;
+        this.imgUrl = imgUrl;
+    }
+
     public Event(Long id, String title, Integer nbStars, String comment) {
         this.id = id;
         this.title = title;

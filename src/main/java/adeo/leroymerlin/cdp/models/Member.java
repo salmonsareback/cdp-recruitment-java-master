@@ -1,5 +1,7 @@
 package adeo.leroymerlin.cdp.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +18,7 @@ public class Member {
     String name;
 
     @ManyToMany(mappedBy = "members", fetch = FetchType.EAGER)
+    @JsonManagedReference
     private Set<Band> bands=new HashSet<>();
 
     public Member() {}

@@ -1,6 +1,7 @@
 package adeo.leroymerlin.cdp.models;
 
 import adeo.leroymerlin.cdp.models.Band;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -18,6 +19,7 @@ public class Event {
 
 //    @OneToMany(fetch=FetchType.EAGER)
     @ManyToMany(fetch=FetchType.EAGER)
+    @JsonBackReference
     @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id")},inverseJoinColumns={@JoinColumn(name="bands_id")})
     private Set<Band> bands = new HashSet<>();
 

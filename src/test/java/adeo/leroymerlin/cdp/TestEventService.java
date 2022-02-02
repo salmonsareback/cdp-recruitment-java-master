@@ -1,5 +1,6 @@
 package adeo.leroymerlin.cdp;
 
+import adeo.leroymerlin.cdp.DTO.EventWithBandOfIdolDto;
 import adeo.leroymerlin.cdp.models.Band;
 import adeo.leroymerlin.cdp.models.Event;
 import adeo.leroymerlin.cdp.repositories.EventRepository;
@@ -55,5 +56,17 @@ public class TestEventService {
         List<Band> bands = eventService.listOfBandIdentifiersWithEvents(identifiers);
         assertThat(bands.size()).isGreaterThan(0);
 
+    }
+
+    @Test
+    public void eventsShowingIdolLikeCo_returnMemberCo(){
+        List<EventWithBandOfIdolDto> eventsForCo = eventService.getFilteredEvents("Co");
+        assertThat(eventsForCo.get(0).getBands().get(0).getMembers().get(0).getName()).contains("Co");
+    }
+
+    @Test
+    public void eventsShowingIdolLikeGe_is2(){
+        List<EventWithBandOfIdolDto> eventsForGe = eventService.getFilteredEvents("Ge");
+        assertThat(eventsForGe.size()).isEqualTo(2);
     }
 }

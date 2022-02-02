@@ -1,5 +1,8 @@
 package adeo.leroymerlin.cdp.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,10 +25,12 @@ public class Band {
 
 //    @OneToMany(fetch=FetchType.EAGER)
     @ManyToMany(fetch=FetchType.EAGER)
+    @JsonBackReference
     @JoinTable(name="band_members", joinColumns = {@JoinColumn(name="band_id")}, inverseJoinColumns = {@JoinColumn(name="members_id")})
     private Set<Member> members=new HashSet<>();
 
     @ManyToMany(mappedBy = "bands")
+    @JsonManagedReference
     private Set<Event> events=new HashSet<>();
 
     public Band() {}

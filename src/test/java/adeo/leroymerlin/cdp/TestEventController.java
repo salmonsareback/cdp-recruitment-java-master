@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Repository;
 import org.springframework.test.annotation.TestAnnotationUtils;
@@ -21,9 +22,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.Optional;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
@@ -58,6 +62,18 @@ public class TestEventController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(event))
             ).andExpect(status().isOk());
+    }
+
+    @Test
+    public void updateEvent1001_xxxxxx(
+    ) throws Exception {
+        Event event = eventRepository.findById(1001L).orElseThrow(()->new HttpServerErrorException(HttpStatus.NOT_FOUND, "Event 1001 not found"));
+        event.setComment("I am testing PUT event");
+        event.setBands(emptySet());
+        this.mockMvc.perform(put("/api/events/1005")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(event))
+        ).andExpect(status().isOk());
     }
 
     @Test

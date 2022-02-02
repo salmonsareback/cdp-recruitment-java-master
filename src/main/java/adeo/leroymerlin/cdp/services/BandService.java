@@ -39,6 +39,7 @@ public class BandService {
                 // Add member to band
                 BandWithFilteredMembersDto bandToAddMember = bands.stream().filter(band2-> band2.getId() == band.getId()).findFirst().get();
                 bandToAddMember.getMembers().add(memberToAdd);
+                // TODO useless counting, size() does the same !
                 bandToAddMember.setNbOfMembers(bandToAddMember.getNbOfMembers()+1);
             });
         });

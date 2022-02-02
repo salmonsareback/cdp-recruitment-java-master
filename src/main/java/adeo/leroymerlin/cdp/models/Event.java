@@ -2,12 +2,18 @@ package adeo.leroymerlin.cdp.models;
 
 import adeo.leroymerlin.cdp.models.Band;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "title")
 public class Event {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -17,10 +23,9 @@ public class Event {
 
     private String imgUrl;
 
-//    @OneToMany(fetch=FetchType.EAGER)
     @ManyToMany(fetch=FetchType.EAGER)
-    @JsonBackReference
-    @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id")},inverseJoinColumns={@JoinColumn(name="bands_id")})
+    @JsonSerialize(using = SetOfBandSerializer.class)
+    @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id", referencedColumnName = "id")},inverseJoinColumns={@JoinColumn(name="bands_id", referencedColumnName = "id")})
     private Set<Band> bands = new HashSet<>();
 
     private Integer nbStars;
@@ -37,7 +42,16 @@ public class Event {
         this.nbStars = nbStars;
         this.comment = comment;
     }
-    public Event( String title, String imgUrl) {
+
+    public Event(Long id, String title, String imgUrl, Integer nbStars, String comment) {
+        this.id = id;
+        this.title = title;
+        this.imgUrl = imgUrl;
+        this.nbStars = nbStars;
+        this.comment = comment;
+    }
+
+    public Event(String title, String imgUrl) {
         this.title = title;
         this.imgUrl = imgUrl;
     }
@@ -85,6 +99,7 @@ public class Event {
         this.imgUrl = imgUrl;
     }
 
+//    @JsonBackReference
     public Set<Band> getBands() {
         return bands;
     }

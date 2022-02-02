@@ -37,7 +37,7 @@
                     <div class="media-body">
                         <h4 class="event media-heading">{{event.title}}</h4>
                         <div>
-                            <span ng-repeat="band in event.bands">{{band.name}} {{$last ? '' : ', '}}</span>
+                            <span ng-repeat="band in event.bands">{{band}} {{$last ? '' : ', '}}</span>
                         </div>
                         <div>
                             <input-stars max="5" ng-model="event.nbStars" ng-change="events.updateStars(event)"></input-stars>

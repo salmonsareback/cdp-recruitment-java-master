@@ -83,10 +83,12 @@ public class EventService {
                                 return selectBandWithIdolAndId(band9.getId(), bandsWithIdols);
                             })
                             // gives the list of bands without id to respect output format
-                            .map(band11 -> new BandWithIdolDto(band11.getName(),band11.getMembers()))
+                            .map(band11 -> new BandWithIdolDto(band11.getName()+ " ["+band11.getMembers().size()+"]",band11.getMembers()))
                             .collect(Collectors.toList());
                     // Set formated band to event
                     oneEvent.setBands(bandsOfTheEvent);
+                    // Count bands in event
+                    oneEvent.setTitle(oneEvent.getTitle()+" [" + oneEvent.getBands().size()+"]");
                     // Add formated event to final
                     eventWithBandOfIdol.add(oneEvent);
                 });

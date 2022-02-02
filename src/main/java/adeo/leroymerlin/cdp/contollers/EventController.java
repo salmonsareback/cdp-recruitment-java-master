@@ -41,7 +41,7 @@ public class EventController {
         eventService.delete(id);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {"*/*"})
     public Event updateEvent(@PathVariable Long id, @RequestBody Event event) {
         if(!event.getId().equals(id)) throw new HttpClientErrorException(HttpStatus.CONFLICT, "Inconsistant identifier as parameter and in body");
         Event updatedEvent = eventService.update(event);
@@ -49,8 +49,8 @@ public class EventController {
         return event;
     }
 
-    @RequestMapping(value = "", method = RequestMethod.POST)
-    public Event updateEvent( @RequestBody Event event) {
+    @RequestMapping(value = "/", method = RequestMethod.POST, consumes = {"*/*"})
+    public Event createEvent( @RequestBody Event event) {
         return eventService.create(event);
     }
 

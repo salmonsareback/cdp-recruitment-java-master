@@ -33,7 +33,17 @@ public class EventController {
 
     @RequestMapping(value = "/search/{query}", method = RequestMethod.GET)
     public List<EventWithBandOfIdolDto> findEvents(@PathVariable String query) {
-        return eventService.getFilteredEvents(query);
+        long start = System.currentTimeMillis();
+        var debug = eventService.getFilteredEvents(query);
+        System.out.println(System.currentTimeMillis()-start);
+        return debug;
+    }
+    @RequestMapping(value = "/searchgd/{query}", method = RequestMethod.GET)
+    public List<Event> findEventsGD(@PathVariable String query) {
+        long start = System.currentTimeMillis();
+        var debug = eventService.getFilteredEventsGD(query);
+        System.out.println(System.currentTimeMillis()-start);
+        return debug;
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

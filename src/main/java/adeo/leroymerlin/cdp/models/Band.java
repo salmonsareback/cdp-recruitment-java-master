@@ -20,7 +20,7 @@ import java.util.Set;
 public class Band {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -44,6 +44,10 @@ public class Band {
         this.id=l;
         this.name=name;
         this.setEvents(Set.of(event));
+    }
+
+    public Band(String name) {
+        this.name=name;
     }
 
     public Long getId() {
@@ -74,4 +78,11 @@ public class Band {
         this.events = events;
     }
 
+    public void addMember(Member member) {
+        this.addMember(member);
+    }
+
+    public void addMember(Long memberId){
+        this.addMember(memberId);
+    }
 }

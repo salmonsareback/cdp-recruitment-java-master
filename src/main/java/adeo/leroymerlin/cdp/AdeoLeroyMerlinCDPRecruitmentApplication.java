@@ -8,7 +8,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class AdeoLeroyMerlinCDPRecruitmentApplication {
 
+
 	public static void main(String[] args) {
 		SpringApplication.run(AdeoLeroyMerlinCDPRecruitmentApplication.class, args);
 	}
+
+
 }

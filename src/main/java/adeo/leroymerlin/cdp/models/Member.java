@@ -18,7 +18,7 @@ import java.util.Set;
         property = "name")
 public class Member {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     String name;
@@ -30,6 +30,10 @@ public class Member {
 
     public Member(Long id, String name) {
         this.id = id;
+        this.name = name;
+    }
+
+    public Member(String name) {
         this.name = name;
     }
 

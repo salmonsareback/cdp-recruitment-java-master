@@ -8,8 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-@Transactional(readOnly = true)
+//@Transactional(readOnly = true)
 public interface BandRepository extends Repository<Band, Long> {
 
     Optional<Band> findById(Long bandId);
@@ -22,4 +23,6 @@ public interface BandRepository extends Repository<Band, Long> {
     List<Band> bandsWithEventsFromAListOfBandIdentifiers(
             @Param("listOfBandsIdentifiers") List<Long> listOfBandsIdentifiers
     );
+
+    Band save(Band band);
 }

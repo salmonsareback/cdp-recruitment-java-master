@@ -11,9 +11,11 @@ import java.util.Optional;
 import java.util.Set;
 
 //@Transactional(readOnly = true)
-public interface BandRepository extends Repository<Band, Long> {
+public interface BandRepository extends JpaRepository<Band, Long> {
+    // JpaRepository offers much more : paging, getReference, ...
 
-    Optional<Band> findById(Long bandId);
+
+    Optional<Band> findById(Long id);
 
     // Jockers could be %, i.e %Hel% search for name including (start, include, end by) 'Hel')
     List<Band> bandAndAllMembersWithAtLeastOneMemberHasNameLike(
@@ -25,4 +27,5 @@ public interface BandRepository extends Repository<Band, Long> {
     );
 
     Band save(Band band);
+
 }

@@ -23,7 +23,7 @@ public class Event {
 
     private String imgUrl;
 
-    @ManyToMany(fetch=FetchType.EAGER)
+    @ManyToMany(fetch=FetchType.LAZY)
     @JsonSerialize(using = SetOfBandSerializer.class)
     @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id", referencedColumnName = "id")},inverseJoinColumns={@JoinColumn(name="bands_id", referencedColumnName = "id")})
     private Set<Band> bands = new HashSet<>();

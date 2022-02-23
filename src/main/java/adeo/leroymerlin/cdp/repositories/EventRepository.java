@@ -28,8 +28,6 @@ public interface EventRepository extends Repository<Event, Long> {
 //        }
 //    }
 
-    Event save(Event event);
-
     public default Event removeBandByIds(Long event_id, Long band_id){
         Optional<Event> event = this.findById(event_id);
         if(event.isPresent()) {
@@ -53,4 +51,6 @@ public interface EventRepository extends Repository<Event, Long> {
             return null;
         }
     }
+
+    Event save(Event event);
 }

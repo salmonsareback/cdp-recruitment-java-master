@@ -55,19 +55,11 @@ public class BandService {
 
 	public Band createBandWithMemberIds(String name, Set<Long> membersIds) {
 		var band = new Band(name);
+		// getById works by reference and will avoid a lot of queries to select data
 		Set<Member> members =
-		  membersIds.stream().map(memberId -> memberRepository.getById(memberId)).collect(Collectors.toSet());
-		/*
-		  memberId -> {
-			  var member = memberRepository.findById(memberId).orElse(null);
-			  band.addMember(member);
-		  }
-		  );
-		   */
-		//if(debug!= null){		band.setMembers(Set.of(debug));}
-		//band.addMember(1001L);
-		Band debug = bandRepository.save(band);
-		return debug;
+		  membersIds.stream().map(memberId ->  memberRepository.getById(memberId)).collect(Collectors.toSet());
+		band.setMembers(members);
+		return bandRepository.save(band);
 	}
 
 }

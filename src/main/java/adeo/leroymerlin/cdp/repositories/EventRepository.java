@@ -2,13 +2,16 @@ package adeo.leroymerlin.cdp.repositories;
 
 import adeo.leroymerlin.cdp.models.Band;
 import adeo.leroymerlin.cdp.models.Event;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-@Transactional(readOnly = true)
-public interface EventRepository extends Repository<Event, Long> {
+public interface EventRepository extends JpaRepository<Event, Long> {
+    // Jpa repository brings much more than Repository
 
     List<Event> findAllBy();
 
@@ -53,4 +56,8 @@ public interface EventRepository extends Repository<Event, Long> {
     }
 
     Event save(Event event);
+
+    Page<Event> findByOrderByIdDesc(Pageable pageable);
+
+
 }

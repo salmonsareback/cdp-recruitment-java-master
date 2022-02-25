@@ -6,11 +6,17 @@ Feature: Event functionalities
     Given this list of events :
 #    Test when one column is id
 #    Test less row persisted than in Cucumber table
-      | Title            | NbStars | Comment    |
+      | Title            | NbStars | comment    |
       | Jazz in Lille    | 5       |            |
       | Hard rock folies | 1       | So noisy ! |
       | Old melodies     |         | For aged   |
       | Pop 80th         | 3       | [blank]    |
+
+#      | Title            | NbStars | Comment    | Manager.firstName |
+#      | Jazz in Lille    | 5       |            | Pierre            |
+#      | Hard rock folies | 1       | So noisy ! | Pierre            |
+#      | Old melodies     |         | For aged   | Jacques           |
+#      | Pop 80th         | 3       | [blank]    | Jacques           |
 
 
     Given this list of bands :
@@ -30,7 +36,7 @@ Feature: Event functionalities
 #    test with wrong column name
 #    test with wrong value
 #    test with [blank] versus null
-      | Title            | NbStars | Comment    |
+      | Title            | NbStars | comment    |
       | Jazz in Lille    | 5       |            |
       | Hard rock folies | 1       | So noisy ! |
       | Old melodies     |         | For aged   |

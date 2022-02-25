@@ -28,6 +28,12 @@ public class Event {
     @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id", referencedColumnName = "id")},inverseJoinColumns={@JoinColumn(name="bands_id", referencedColumnName = "id")})
     private Set<Band> bands = new HashSet<>();
 
+
+    @ManyToOne
+    @JsonSerialize(using = ManagerSerializer.class)
+    @JoinColumn(name="manager_id")
+    private Manager manager;
+
     private Integer nbStars;
 
     private String comment;
@@ -132,4 +138,11 @@ public class Event {
         this.comment = comment;
     }
 
+    public Manager getManager() {
+        return manager;
+    }
+
+    public void setManager(Manager manager) {
+        this.manager = manager;
+    }
 }

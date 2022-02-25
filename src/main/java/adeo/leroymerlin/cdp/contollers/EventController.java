@@ -1,6 +1,6 @@
 package adeo.leroymerlin.cdp.contollers;
 
-import adeo.leroymerlin.cdp.DTO.EventWithBandOfIdolDto;
+import adeo.leroymerlin.cdp.models.DTO.EventWithBandOfIdolDto;
 import adeo.leroymerlin.cdp.services.EventService;
 import adeo.leroymerlin.cdp.models.Event;
 import org.springframework.beans.factory.annotation.Autowired;

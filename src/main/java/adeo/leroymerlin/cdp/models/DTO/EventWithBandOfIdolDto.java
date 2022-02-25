@@ -1,9 +1,6 @@
-package adeo.leroymerlin.cdp.DTO;
-
-import adeo.leroymerlin.cdp.models.Band;
+package adeo.leroymerlin.cdp.models.DTO;
 
 import java.util.List;
-import java.util.Set;
 
 public class EventWithBandOfIdolDto {
     private String title;

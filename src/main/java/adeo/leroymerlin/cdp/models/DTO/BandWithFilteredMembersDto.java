@@ -1,4 +1,4 @@
-package adeo.leroymerlin.cdp.DTO;
+package adeo.leroymerlin.cdp.models.DTO;
 
 import adeo.leroymerlin.cdp.models.Band;
 

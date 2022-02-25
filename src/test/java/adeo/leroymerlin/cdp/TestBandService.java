@@ -1,6 +1,6 @@
 package adeo.leroymerlin.cdp;
 
-import adeo.leroymerlin.cdp.DTO.BandWithFilteredMembersDto;
+import adeo.leroymerlin.cdp.models.DTO.BandWithFilteredMembersDto;
 import adeo.leroymerlin.cdp.services.BandService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

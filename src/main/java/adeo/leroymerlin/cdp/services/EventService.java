@@ -1,7 +1,7 @@
 package adeo.leroymerlin.cdp.services;
 
-import adeo.leroymerlin.cdp.DTO.*;
 import adeo.leroymerlin.cdp.models.Band;
+import adeo.leroymerlin.cdp.models.DTO.*;
 import adeo.leroymerlin.cdp.models.Event;
 import adeo.leroymerlin.cdp.repositories.BandRepository;
 import adeo.leroymerlin.cdp.repositories.EventRepository;

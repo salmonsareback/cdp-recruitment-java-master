@@ -1,6 +1,6 @@
 package adeo.leroymerlin.cdp.services;
 
-import adeo.leroymerlin.cdp.DTO.BandWithFilteredMembersDto;
+import adeo.leroymerlin.cdp.models.DTO.BandWithFilteredMembersDto;
 import adeo.leroymerlin.cdp.models.Band;
 import adeo.leroymerlin.cdp.models.Member;
 import adeo.leroymerlin.cdp.repositories.BandRepository;

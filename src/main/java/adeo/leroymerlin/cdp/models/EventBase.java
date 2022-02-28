@@ -20,6 +20,8 @@ public class EventBase {
 
     private String comment;
 
+    private TestEnum oneEnum;
+
     @ManyToOne
     @JsonSerialize(using = ManagerSerializer.class)
     @JoinColumn(name = "manager_id")
@@ -66,20 +68,24 @@ public class EventBase {
         this.title = title;
     }
 
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public TestEnum getOneEnum() {
+        return oneEnum;
+    }
+
+    public void setOneEnum(TestEnum oneEnum) {
+        this.oneEnum = oneEnum;
+    }
+
     public Integer getNbStars() {
         return nbStars;
     }
 
     public void setNbStars(Integer nbStars) {
         this.nbStars = nbStars;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public Manager getManager() {

@@ -65,6 +65,7 @@ public class Event extends EventBase {
         this.imgUrl = imgUrl;
     }
 
+
     //    @JsonBackReference
     public Set<Band> getBands() {
         return bands;

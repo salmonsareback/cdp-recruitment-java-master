@@ -3,6 +3,7 @@ package adeo.leroymerlin.cdp.services;
 import adeo.leroymerlin.cdp.models.Band;
 import adeo.leroymerlin.cdp.models.DTO.*;
 import adeo.leroymerlin.cdp.models.Event;
+import adeo.leroymerlin.cdp.models.TestEnum;
 import adeo.leroymerlin.cdp.repositories.BandRepository;
 import adeo.leroymerlin.cdp.repositories.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,7 +178,7 @@ public class EventService {
 
     @Transactional
     public Event createEventWithBandIds(String title, Integer nbStars, Set<Long> bandsIds) {
-        var event = new Event(title, nbStars, "");
+        var event = new Event(title, nbStars, TestEnum.Titi);
         Set<Band> bands = bandsIds.stream().map(bandId -> bandRepository.getById(bandId)).collect(Collectors.toSet());
         event.setBands(bands);
         return eventRepository.save(event);

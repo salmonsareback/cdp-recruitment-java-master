@@ -3,6 +3,7 @@ package adeo.leroymerlin.cdp;
 import adeo.leroymerlin.cdp.contollers.EventController;
 import adeo.leroymerlin.cdp.models.Band;
 import adeo.leroymerlin.cdp.models.Event;
+import adeo.leroymerlin.cdp.models.TestEnum;
 import adeo.leroymerlin.cdp.repositories.BandRepository;
 import adeo.leroymerlin.cdp.repositories.EventRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,7 +58,7 @@ public class TestEventController {
     @Test
     public void createNewEvent_Returns200(
     ) throws Exception {
-        Event event = new Event("This is a new event",3,"This is the comment of new event");
+        Event event = new Event("This is a new event",3, TestEnum.Titi)    ;//            "This is the comment of new event");
             this.mockMvc.perform(post("/api/events")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(event))
@@ -68,7 +69,7 @@ public class TestEventController {
     public void updateEvent1001_xxxxxx(
     ) throws Exception {
         Event event = eventRepository.findById(1001L).orElseThrow(()->new HttpServerErrorException(HttpStatus.NOT_FOUND, "Event 1001 not found"));
-        event.setComment("I am testing PUT event");
+//        event.setComment("I am testing PUT event");
         event.setBands(emptySet());
         this.mockMvc.perform(put("/api/events/1005")
                 .contentType(MediaType.APPLICATION_JSON)

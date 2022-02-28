@@ -6,11 +6,12 @@ Feature: Event functionalities
     Given this list of events :
 #    Test when one column is id
 #    Test less row persisted than in Cucumber table
-      | Title            | NbStars | comment    |
-      | Jazz in Lille    | 5       |            |
-      | Hard rock folies | 1       | So noisy ! |
-      | Old melodies     |         | For aged   |
-      | Pop 80th         | 3       | [blank]    |
+    # Mixer   capitalisation ou non
+      | title            | nbStars | comment    | oneEnum |
+      | Jazz in Lille    | 5       |            | titi    |
+      | Hard rock folies | 1       | So noisy ! | titi    |
+      | Old melodies     |         | For aged   | toto    |
+      | Pop 80th         | 3       | [blank]    | toto    |
 
 #      | Title            | NbStars | Comment    | Manager.firstName |
 #      | Jazz in Lille    | 5       |            | Pierre            |
@@ -19,8 +20,9 @@ Feature: Event functionalities
 #      | Pop 80th         | 3       | [blank]    | Jacques           |
 
 
+    # Mixer   capitalisation ou non
     Given this list of bands :
-      | Name           |
+      | name           |
       | Crazy  trio    |
       | The black band |
       | Best friends   |
@@ -36,8 +38,8 @@ Feature: Event functionalities
 #    test with wrong column name
 #    test with wrong value
 #    test with [blank] versus null
-      | Title            | NbStars | comment    |
-      | Jazz in Lille    | 5       |            |
-      | Hard rock folies | 1       | So noisy ! |
-      | Old melodies     |         | For aged   |
-      | Pop 80th         | 3       | [blank]    |
+      | Title            | NbStars | comment    |    oneEnum |
+      | Jazz in Lille    | 05      |            |    titi    |
+      | Hard rock folies | 1       | So noisy ! |    titi    |
+      | Old melodies     |         | For aged   |    toto    |
+      | Pop 80th         | 3       | [blank]    |    toto    |

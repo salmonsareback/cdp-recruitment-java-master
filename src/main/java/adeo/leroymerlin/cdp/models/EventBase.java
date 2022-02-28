@@ -8,53 +8,31 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "title")
+@MappedSuperclass
 public class EventBase {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
-
-    @ManyToOne
-    @JsonSerialize(using = ManagerSerializer.class)
-    @JoinColumn(name="manager_id")
-    private Manager manager;
 
     private Integer nbStars;
 
     private String comment;
 
-    public EventBase(){}
+    @ManyToOne
+    @JsonSerialize(using = ManagerSerializer.class)
+    @JoinColumn(name = "manager_id")
+    private Manager manager;
 
-    public EventBase(Long id, String title, String imgUrl, Set<Band> bands, Integer nbStars, String comment) {
-        this.id = id;
-        this.title = title;
-        this.nbStars = nbStars;
-        this.comment = comment;
+    public EventBase() {
     }
 
-    public EventBase(Long id, String title, String imgUrl, Integer nbStars, String comment) {
-        this.id = id;
-        this.title = title;
-        this.nbStars = nbStars;
-        this.comment = comment;
-    }
-
-    public EventBase(String title, String imgUrl) {
+    public EventBase(String title) {
         this.title = title;
     }
 
-    public EventBase(String title, Integer nbStars, String comment) {
-        this.title = title;
-        this.nbStars = nbStars;
-        this.comment = comment;
-    }
-
-    public EventBase(Long id, String title, String imgUrl) {
+    public EventBase(Long id, String title) {
         this.id = id;
         this.title = title;
     }
@@ -66,12 +44,17 @@ public class EventBase {
         this.comment = comment;
     }
 
+    public EventBase(String title, Integer nbStars, String comment) {
+        this.title = title;
+        this.nbStars = nbStars;
+        this.comment = comment;
+    }
+
     public Long getId() {
         return id;
     }
 
-
-      public void setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -82,7 +65,6 @@ public class EventBase {
     public void setTitle(String title) {
         this.title = title;
     }
-
 
     public Integer getNbStars() {
         return nbStars;

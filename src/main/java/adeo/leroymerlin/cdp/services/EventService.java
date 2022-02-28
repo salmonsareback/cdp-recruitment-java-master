@@ -57,7 +57,7 @@ public class EventService {
         someBandsShowsEvents.stream().forEach(band1 -> {
             band1.getEvents().forEach(event2 -> {
                 // Check if event already listed
-                if (eventsForIdols.stream().filter(event3 -> event3.getId() == event2.getId()).count() == 0) {
+                if (eventsForIdols.stream().filter(event3 -> event3.getId() ==  event2.getId()).count() == 0) {
                     Event oneEventForIdols = new Event(event2.getId(), event2.getTitle(), event2.getImgUrl());
                     eventsForIdols.add(oneEventForIdols);
                 }

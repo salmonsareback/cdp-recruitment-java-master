@@ -4,18 +4,18 @@ import com.sun.istack.NotNull;
 import io.cucumber.core.exception.CucumberException;
 import io.cucumber.datatable.DataTable;
 
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.beans.IntrospectionException;
+import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -41,76 +41,83 @@ public class CucumberUtils {
             throw new CucumberException("No rows fetched to compare with Cucumber table.");
         else if (instances.size() != mappedCucumberTable.size())
             throw new CucumberException("Cucumber table expecting to compare " + mappedCucumberTable.size() + " rows but " + instances.size() + " were provided.");
-        else entityClass = instances.get(0).getClass();
-        var entityFields = new EntityFields(entityClass);
+
+
+//        else entityClass = instances.get(0).getClass();
+//        var entityFields = new EntityFields(entityClass);
         int i = 0;
 
-        ///   TODO EN COURS !!!!!!!!!!!!!!!!!! créer assertOneInstanceEqualsOneMapOfFieldsValues pour le code suivant en utilisant Method m = propertyDescriptor.getReadMethod();
+
         // For each row of the cucumber table
         for (Map<String, String> row : mappedCucumberTable) {
-            Class refl = instances.get(i).getClass();
-            Class[] paramTypes = new Class[0];
-            // For each column of one line of cucumber table , the name of the column is the key
-            for (Map.Entry cucumberMapColumnNameAndValue : row.entrySet()) {
-                String columnName = cucumberMapColumnNameAndValue.getKey().toString();
-
-                if (columnName.equalsIgnoreCase(entityFields.getPrimaryKey())) {
-                    throw new CucumberException("Identifier \"" + columnName + "\" values should not be compared because identifier values could not be generated manually. Such, cucumber table should not have header \"" + columnName + "\".");
-                } else {
-                    // Find corresponding entityFields
-                    EntityFields.FieldDef matchingField = entityFields.matching(columnName);
-                    if (matchingField == null) {
-                        throw new CucumberException("Attribute \"" + columnName + "\" not found for class " + instances.get(0).getClass().getName() + ". Entity attributes are : " + entityFields.fieldsList() + ".");
-                    } else {
-                        try {
-                            // Build getter method from cucumber table column name
-                            // TODO replace with         Method m = propertyDescriptor.getReadMethod();
-                            // See below how is used Method m = propertyDescriptor.getWriteMethod();
-                            String getterName = "get" +
-                                    columnName.substring(0, 1).toUpperCase() + columnName.substring(1);
-                            Method method = refl.getMethod(getterName, paramTypes);
-                            Object valueOfInstance = method.invoke(instances.get(i));
-                            //
-                            var cucumberValue = cucumberMapColumnNameAndValue.getValue();
-                            // Replace with empty string
-                            if (replaceWithEmptyString != null && replaceWithEmptyString.length() > 0 && cucumberValue != null && cucumberValue.toString().trim().equals(replaceWithEmptyString.trim()))
-                                cucumberValue = "";
-                            // Case of null expected or given
-                            if (cucumberValue == null) {
-                                assertThat(valueOfInstance).isNull();
-                            } else if (valueOfInstance == null) {
-                                assertThat(valueOfInstance).isEqualTo(cucumberValue.toString());
-                            } else {
-                                switch (matchingField.typeName) {
-                                    case "Long":
-                                        assertThat(valueOfInstance).isEqualTo(Long.parseLong(cucumberValue.toString()));
-                                        break;
-                                    case "Double":
-                                        assertThat(valueOfInstance).isEqualTo(Double.parseDouble(cucumberValue.toString()));
-                                        break;
-                                    case "String":
-                                        assertThat(valueOfInstance.toString()).isEqualTo(cucumberValue.toString());
-                                        break;
-                                    case "Boolean":
-                                        assertThat(valueOfInstance).isEqualTo(Boolean.parseBoolean(cucumberValue.toString()));
-                                        break;
-                                    case "BigDecimal":
-                                        assertThat(valueOfInstance).isEqualTo(new BigDecimal(cucumberValue.toString()));
-                                        break;
-                                    default:
-                                        assertThat(valueOfInstance.toString()).isEqualTo(cucumberValue.toString());
-                                }
-                            }
-                        } catch (NoSuchMethodException e) {
-                            throw new CucumberException("Getter for attribute \"" + columnName + "\" not found for class " + instances.get(0).getClass().getName() + ".");
-
-                        } catch (AssertionError e) {
-                            CucumberException n = new CucumberException("Cucumber table column \"" + columnName + "\", row " + (i + 1) + " :\r\n" + e.getMessage());
-                            throw n;
-                        }
-                    }
-                }
+            try {
+                assertOneInstanceEqualsOneMapOfFieldsValues(instances.get(i), row, replaceWithEmptyString);
+            } catch (AssertionError | CucumberException e) {
+                throw new CucumberException("Cucumber row " + (i + 1) + " :\r\n" + e.getMessage());
             }
+//            Class refl = instances.get(i).getClass();
+//            Class[] paramTypes = new Class[0];
+//            // For each column of one line of cucumber table , the name of the column is the key
+//            for (Map.Entry cucumberMapColumnNameAndValue : row.entrySet()) {
+//                String columnName = cucumberMapColumnNameAndValue.getKey().toString();
+//
+//                if (columnName.equalsIgnoreCase(entityFields.getPrimaryKey())) {
+//                    throw new CucumberException("Identifier \"" + columnName + "\" values should not be compared because identifier values could not be generated manually. Such, cucumber table should not have header \"" + columnName + "\".");
+//                } else {
+//                    // Find corresponding entityFields
+//                    EntityFields.FieldDef matchingField = entityFields.matching(columnName);
+//                    if (matchingField == null) {
+//                        throw new CucumberException("Attribute \"" + columnName + "\" not found for class " + instances.get(0).getClass().getName() + ". Entity attributes are : " + entityFields.fieldsList() + ".");
+//                    } else {
+//                        try {
+//                            // Build getter method from cucumber table column name
+//                            // TODO replace with         Method m = propertyDescriptor.getReadMethod();
+//                            // See below how is used Method m = propertyDescriptor.getWriteMethod();
+//                            String getterName = "get" +
+//                                    columnName.substring(0, 1).toUpperCase() + columnName.substring(1);
+//                            Method method = refl.getMethod(getterName, paramTypes);
+//                            Object valueOfInstance = method.invoke(instances.get(i));
+//                            //
+//                            var cucumberValue = cucumberMapColumnNameAndValue.getValue();
+//                            // Replace with empty string
+//                            if (replaceWithEmptyString != null && replaceWithEmptyString.length() > 0 && cucumberValue != null && cucumberValue.toString().trim().equals(replaceWithEmptyString.trim()))
+//                                cucumberValue = "";
+//                            // Case of null expected or given
+//                            if (cucumberValue == null) {
+//                                assertThat(valueOfInstance).isNull();
+//                            } else if (valueOfInstance == null) {
+//                                assertThat(valueOfInstance).isEqualTo(cucumberValue.toString());
+//                            } else {
+//                                switch (matchingField.typeName) {
+//                                    case "Long":
+//                                        assertThat(valueOfInstance).isEqualTo(Long.parseLong(cucumberValue.toString()));
+//                                        break;
+//                                    case "Double":
+//                                        assertThat(valueOfInstance).isEqualTo(Double.parseDouble(cucumberValue.toString()));
+//                                        break;
+//                                    case "String":
+//                                        assertThat(valueOfInstance.toString()).isEqualTo(cucumberValue.toString());
+//                                        break;
+//                                    case "Boolean":
+//                                        assertThat(valueOfInstance).isEqualTo(Boolean.parseBoolean(cucumberValue.toString()));
+//                                        break;
+//                                    case "BigDecimal":
+//                                        assertThat(valueOfInstance).isEqualTo(new BigDecimal(cucumberValue.toString()));
+//                                        break;
+//                                    default:
+//                                        assertThat(valueOfInstance.toString()).isEqualTo(cucumberValue.toString());
+//                                }
+//                            }
+//                        } catch (NoSuchMethodException e) {
+//                            throw new CucumberException("Getter for attribute \"" + columnName + "\" not found for class " + instances.get(0).getClass().getName() + ".");
+//
+//                        } catch (AssertionError e) {
+//                            CucumberException n = new CucumberException("Cucumber table column \"" + columnName + "\", row " + (i + 1) + " :\r\n" + e.getMessage());
+//                            throw n;
+//                        }
+//                    }
+//                }
+//            }
             i++;
 
         }
@@ -318,7 +325,7 @@ public class CucumberUtils {
                 }
         );
         if (entityNameSingular[0] == null)
-            throw new CucumberException("No entity class exists for \"" + entityName + "\" (plural authorized).");
+            throw new CucumberException("No entity class exists for \"" + packageModelsPath + "." + entityName + "\" (plural authorized).");
         try {
             Class<?> type = Class.forName(packageModelsPath + "." + entityNameSingular[0]);
             return type;
@@ -327,40 +334,104 @@ public class CucumberUtils {
         }
     }
 
-    private static <T extends Object> void assertOneInstanceEqualsOneMapOfFieldsValues(T instance, Map<String, String> row) {
-        Class refl = instance.getClass();
-        Class[] paramTypes = new Class[0];
-        // For each field of the map
-        row.forEach((fieldName, fieldValue) -> {
+    private static <T extends Object> void assertOneInstanceEqualsOneMapOfFieldsValues(T instance, Map<String, String> row) throws AssertionError {
+        assertOneInstanceEqualsOneMapOfFieldsValues(instance, row, "[blank]");
+    }
 
-            //  TODO check if tolerate first letter change case
+    private static <T extends Object> void assertOneInstanceEqualsOneMapOfFieldsValues(T instance, Map<String, String> row, String replaceWithEmptyString) throws AssertionError {
+        Class refl = instance.getClass();
+        // For each field of the map
+        row.forEach((cucumberFieldName, cucumberFieldValue) -> {
+            // Check if cucumber table value is empty string
+            if (replaceWithEmptyString != null && replaceWithEmptyString.length() > 0 && cucumberFieldValue != null && cucumberFieldValue.toString().trim().equals(replaceWithEmptyString.trim())) {
+                cucumberFieldValue = "";
+            }
+            Object gettedValueOfInstance = null;
+            // Check if cucumber field name exists on instance class
             Field equivalentFieldInInstance = null;
             try {
-                equivalentFieldInInstance = refl.getDeclaredField(fieldName);
+                equivalentFieldInInstance = refl.getDeclaredField(cucumberFieldName);
             } catch (NoSuchFieldException e) {
-                throw new CucumberException("Field name \"" + fieldName + "\" does not exist for entity \"" + refl.getSimpleName() + "\".");
+                // Have a second try by un-capitalizing first letter
+                cucumberFieldName = cucumberFieldName.substring(0, 1).toLowerCase() + cucumberFieldName.substring(1);
+                try {
+                    equivalentFieldInInstance = refl.getDeclaredField(cucumberFieldName);
+                } catch (NoSuchFieldException e2) {
+                    throw new CucumberException("Field name \"" + cucumberFieldName + "\" does not exist for entity \"" + refl.getSimpleName() + "\".\r\n" +
+                            "List of attributes is " + Arrays.stream(refl.getDeclaredFields()).map(Field::getName).collect(Collectors.joining(", ")));
+                }
             }
-            // Check if this property is annotated with @Id in entity class
-            if (Arrays.stream(equivalentFieldInInstance.getAnnotations()).filter(a -> a.annotationType() == Id.class).count() > 0) {
-                throw new CucumberException("Identifier \"" + fieldName + "\" is annotated @Id and values are unpredictable as being generated automatically. Such, cucumber table should not have header \"" + fieldName + "\".");
+            // Check if this property is annotated with @Id and @GeneratedValue in entity class
+            if (Arrays.stream(equivalentFieldInInstance.getAnnotations()).filter(a -> a.annotationType() == Id.class).count() > 0 ||
+                    Arrays.stream(equivalentFieldInInstance.getAnnotations()).filter(a -> a.annotationType() == GeneratedValue.class).count() > 0) {
+                throw new CucumberException("Identifier \"" + cucumberFieldName + "\" is annotated @Id and @GeneratedValue. Values are unpredictable as being generated automatically. Such, cucumber table should not have header \"" + cucumberFieldName + "\".");
             }
             // Find getter
-            //  TODO check if tolerate first letter change case
             PropertyDescriptor propertyDescriptor = null;
             try {
-                propertyDescriptor = new PropertyDescriptor(fieldName, refl);
+                propertyDescriptor = new PropertyDescriptor(cucumberFieldName, refl);
             } catch (IntrospectionException e) {
-                throw new CucumberException("Fail to build property for field  \\\"\" + fieldName + \"\\\" not found for class \" + refl.getSimpleName() + \".\")")
+                throw new CucumberException("Fail to build property for field  \\\"\" + cucumberFieldName + \"\\\" not found for class \"" + refl.getSimpleName() + "\".");
             }
+            // A bean entity is reputed to have only one getter
             Method getter = propertyDescriptor.getReadMethod();
             if (getter == null) {
-                throw new CucumberException("Getter for field \"" + fieldName + "\" not found for class " + refl.getSimpleName() + ".");
+                throw new CucumberException("Getter for field \"" + cucumberFieldName + "\" not found for class " + refl.getSimpleName() + ".");
+            }
+            try {
+                gettedValueOfInstance = getter.invoke(instance, new Class[0]);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                throw new CucumberException("Trying to get value for \"" + cucumberFieldName + "\" failed with error :\r\n" + e.getMessage());
             }
 
-            // Object valueOfInstance = method.invoke(instances.get(i));
-/// can we compare simplier than in assertMappedCucumberTableEqualEntityInstances ??
+            ///////////////  utiliser la suite dans le cas du writter !! ****************
+            // Does a getter method simply returns string ?
+//            try {
+//                getterReturningString = refl.getMethod(getter.getName(), String.class);
+//                gettedValueOfInstance = getterReturningString.invoke(new Class[0]);
+//            } catch (NoSuchMethodException e) {
+//                //  No getter returning string
+//            } catch (InvocationTargetException | IllegalAccessException e) {
+//                throw new CucumberException("Trying to get value for \"" + cucumberFieldName + "\" failed with error :\r\n" + e.getMessage());
+//            }
+//            if (getterReturningString != null) {
+//                assertThat(gettedValueOfInstance).isEqualTo(cucumberFieldValue);
+//            } else {
+//                gettedValueOfInstance=refl.getter.getName()
+            ////////////////   ********************
 
-        });
+            // Try to compare with different numeric and date format
+            // because toString() comparison would fail such 50 not equals to 50.0000
+            if(cucumberFieldValue== null){
+                assertThat(gettedValueOfInstance).isNull();
+            }else{
+            switch (getter.getReturnType().getSimpleName()) {
+                case "Long":
+                    assertThat(gettedValueOfInstance).isEqualTo(Long.parseLong(cucumberFieldValue));
+                    break;
+                case "Integer":
+                    assertThat(gettedValueOfInstance).isEqualTo(Integer.parseInt(cucumberFieldValue));
+                    break;
+                case "Double":
+                    assertThat(gettedValueOfInstance).isEqualTo(Double.parseDouble(cucumberFieldValue));
+                    break;
+                case "Boolean":
+                    assertThat(gettedValueOfInstance).isEqualTo(Boolean.parseBoolean(cucumberFieldValue));
+                    break;
+                case "BigDecimal":
+                    assertThat(gettedValueOfInstance).isEqualTo(new BigDecimal(cucumberFieldValue));
+                    break;
+                case "LocalDate":
+                    assertThat(gettedValueOfInstance).isEqualTo(LocalDate.parse(cucumberFieldValue));
+                default:
+                    if (gettedValueOfInstance == null) {
+                        assertThat(gettedValueOfInstance).isEqualTo(cucumberFieldValue.toString());
+                    } else {
+                        assertThat(gettedValueOfInstance.toString()).isEqualTo(cucumberFieldValue.toString());
+                    }
+            }}
+        }); //row.forEach
+
+
     }
-}
 }

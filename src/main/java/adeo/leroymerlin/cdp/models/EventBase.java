@@ -1,7 +1,5 @@
 package adeo.leroymerlin.cdp.models;
 
-import adeo.leroymerlin.cdp.models.Band;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -14,20 +12,12 @@ import java.util.Set;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "title")
-public class Event {
+public class EventBase {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
     private String title;
-
-    private String imgUrl;
-
-    @ManyToMany(fetch=FetchType.LAZY)
-    @JsonSerialize(using = SetOfBandSerializer.class)
-    @JoinTable(name="event_bands", joinColumns={@JoinColumn(name="event_id", referencedColumnName = "id")},inverseJoinColumns={@JoinColumn(name="bands_id", referencedColumnName = "id")})
-    private Set<Band> bands = new HashSet<>();
-
 
     @ManyToOne
     @JsonSerialize(using = ManagerSerializer.class)
@@ -38,43 +28,38 @@ public class Event {
 
     private String comment;
 
-    public Event(){}
+    public EventBase(){}
 
-    public Event(Long id, String title, String imgUrl, Set<Band> bands, Integer nbStars, String comment) {
+    public EventBase(Long id, String title, String imgUrl, Set<Band> bands, Integer nbStars, String comment) {
         this.id = id;
-        this.title = title;
-        this.imgUrl = imgUrl;
-        this.bands = bands;
-        this.nbStars = nbStars;
-        this.comment = comment;
-    }
-
-    public Event(Long id, String title, String imgUrl, Integer nbStars, String comment) {
-        this.id = id;
-        this.title = title;
-        this.imgUrl = imgUrl;
-        this.nbStars = nbStars;
-        this.comment = comment;
-    }
-
-    public Event(String title, String imgUrl) {
-        this.title = title;
-        this.imgUrl = imgUrl;
-    }
-
-    public Event(String title, Integer nbStars, String comment) {
         this.title = title;
         this.nbStars = nbStars;
         this.comment = comment;
     }
 
-    public Event(Long id, String title, String imgUrl) {
+    public EventBase(Long id, String title, String imgUrl, Integer nbStars, String comment) {
         this.id = id;
         this.title = title;
-        this.imgUrl = imgUrl;
+        this.nbStars = nbStars;
+        this.comment = comment;
     }
 
-    public Event(Long id, String title, Integer nbStars, String comment) {
+    public EventBase(String title, String imgUrl) {
+        this.title = title;
+    }
+
+    public EventBase(String title, Integer nbStars, String comment) {
+        this.title = title;
+        this.nbStars = nbStars;
+        this.comment = comment;
+    }
+
+    public EventBase(Long id, String title, String imgUrl) {
+        this.id = id;
+        this.title = title;
+    }
+
+    public EventBase(Long id, String title, Integer nbStars, String comment) {
         this.id = id;
         this.title = title;
         this.nbStars = nbStars;
@@ -96,30 +81,6 @@ public class Event {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getImgUrl() {
-        return imgUrl;
-    }
-
-    public void setImgUrl(String imgUrl) {
-        this.imgUrl = imgUrl;
-    }
-
-//    @JsonBackReference
-    public Set<Band> getBands() {
-        return bands;
-    }
-
-    public void setBands(Set<Band> bands) {
-        this.bands = bands;
-    }
-
-    public void addBand(Band band){ this.bands.add(band);}
-
-    public void removeBand(Band band){
-        this.bands.remove(band);
-//        band.getEvents().remove(this);
     }
 
 

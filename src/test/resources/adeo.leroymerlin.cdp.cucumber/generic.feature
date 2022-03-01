@@ -11,6 +11,8 @@ Feature: Event functionalities
       | title            | NbStars | Comment    | oneEnum |
       | Jazz in Lille    | 5       |            | Titi    |
       | Hard rock folies | 1       | So noisy ! | Titi    |
+#    And this list of events :
+#      | title            | NbStars | Comment    | oneEnum |
       | Old melodies     |         | For aged   | Toto    |
       | Pop 80th         | 3       | [blank]    | Toto    |
 
@@ -42,5 +44,5 @@ Feature: Event functionalities
       | Title            | NbStars | comment    |    oneEnum |
       | Jazz in Lille    | 05      |            |    Titi    |
       | Hard rock folies | 1       | So noisy ! |    Titi    |
-      | Old melodies     |         | For aged   |    toto    |
+      | Old melodies     |         | For aged   |    Toto    |
       | Pop 80th         | 3       | [blank]    |    toto    |

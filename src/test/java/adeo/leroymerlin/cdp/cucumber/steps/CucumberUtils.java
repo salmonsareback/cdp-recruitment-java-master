@@ -62,6 +62,10 @@ public class CucumberUtils {
 
 
         cucumberTableRow.forEach((cucumberFieldName, cucumberFieldValue) -> {
+            // Check if fieldName is not empty
+            if (cucumberFieldName == null || cucumberFieldName.length() == 0) {
+                throw new CucumberException("Cucumber header is empty.");
+            }
             Field fieldOfClass;
             try {
                 fieldOfClass = getRecursivelySuperClassDeclaredField(refl, cucumberFieldName);
@@ -69,17 +73,17 @@ public class CucumberUtils {
                 fieldOfClass = null;
             }
             // try a second chance with first letter lowercase
-            // TODO check length >1
-            cucumberFieldName = cucumberFieldName.substring(0, 1).toLowerCase() + cucumberFieldName.substring(1);
-            try {
-                fieldOfClass = getRecursivelySuperClassDeclaredField(refl, cucumberFieldName);
-            } catch (NoSuchFieldException e2) {
-                fieldOfClass = null;
+            if(fieldOfClass==null) {
+                cucumberFieldName = LowerCaseFirstLetter(cucumberFieldName);
+                try {
+                    fieldOfClass = getRecursivelySuperClassDeclaredField(refl, cucumberFieldName);
+                } catch (NoSuchFieldException e2) {
+                    fieldOfClass = null;
+                }
             }
-
             if (fieldOfClass == null) {
                 throw new CucumberException("Attribute \"" + cucumberFieldName + "\" does not exists for entity \"" + entityClass.getSimpleName() + "\".\r\n" +
-                        "List of attributes is " + getRecursivelySuperClassDeclaredFields(refl).stream().map(Field::getName).collect(Collectors.joining(", ")));
+                        "List of attributes : " + getRecursivelySuperClassDeclaredFields(refl).stream().map(Field::getName).collect(Collectors.joining(", ")));
             }
             try {
                 var propertyDescriptor = new PropertyDescriptor(cucumberFieldName, refl);
@@ -116,13 +120,12 @@ public class CucumberUtils {
                         // Whatever is the real type of attribute, it could happend that a setter with
                         // param as string exists. Thus, setter would convert the string to actual attribute type
                         paramTypes[0] = String.class;
-//                        String setMethodName = "set"+ cucumberFieldName.substring(0,1).toUpperCase()+cucumberFieldName.substring(1);
                         var setWithParamString = refl.getMethod(m.getName(), paramTypes);
                         setWithParamString.invoke(instance, cucumberFieldValue);
                     } catch (IllegalArgumentException | InvocationTargetException e) {
                         throw new CucumberException("Cucumber could call setter for attribute \"" + cucumberFieldName + "\" with String value \"" + cucumberFieldValue + "\" but the error was returned :\r\n " + e.getCause() + "\r\n" + e.getMessage());
                     } catch (Exception e) {
-                        throw new CucumberException("Cucumber failed to use setter for attribute \"" + cucumberFieldName + "\" with param type \"" + paramTypes[0].getName() + "\" for entity \"" + refl.getSimpleName() + "\".\r\n" + "==> Could be solved by overloading setter set" + cucumberFieldName.substring(0, 1).toUpperCase() + cucumberFieldName.substring(1) + " casting string to adequate attribute type. Example :\r\n" + "        public void setOneEnum(String oneEnum){\r\n" + "          this.oneEnum = TestEnum.valueOf(oneEnum);\r\n" + "        }\r\n");
+                        throw new CucumberException("Cucumber failed to use setter for attribute \"" + cucumberFieldName + "\" with param type \"" + paramTypes[0].getName() + "\" for entity \"" + refl.getSimpleName() + "\".\r\n" + "==> Could be solved by overloading setter set" + UpperCaseFirstLetter(cucumberFieldName) + " casting string to adequate attribute type. Example :\r\n" + "        public void setOneEnum(String oneEnum){\r\n" + "          this.oneEnum = TestEnum.valueOf(oneEnum);\r\n" + "        }\r\n");
                     }
                 }
             } catch (CucumberException e) {
@@ -136,108 +139,20 @@ public class CucumberUtils {
         return instance;
     }
 
-//    static class EntityFields {
-//
-//        private static class FieldDef {
-//
-//            private String name;
-//            private String typeName;
-//
-//            public FieldDef(String name, String typeName) {
-//                this.name = name;
-//                // Catch substring after period (.) if any
-//                Pattern pattern = Pattern.compile("([^.]+)$");
-//                Matcher m = pattern.matcher(typeName);
-//                if (m.find()) this.typeName = m.group();
-//            }
-//
-//            public String getName() {
-//                return name;
-//            }
-//
-//            public String getTypeName() {
-//                return typeName;
-//            }
-//        }
-//
-//        private List<FieldDef> fields = new ArrayList(Arrays.asList());
-//        private String primaryKey;
-//
-//        public EntityFields(EntityFields entityFields) {
-//        }
-//
-//        public List<FieldDef> getFieldsNames() {
-//            return fields;
-//        }
-//
-//        public void setFieldsNames(List<FieldDef> fields) {
-//            this.fields = fields;
-//        }
-//
-//        public EntityFields(Class<?> pojo) {
-//            if (pojo == null) {
-//                this.fields = new ArrayList<>();
-//                this.primaryKey = null;
-//            } else {
-//
-//                for (Field f : pojo.getDeclaredFields()) {
-//
-//                    Annotation[] as = f.getAnnotations();
-//                    for (Annotation a : as) {
-//                        // Some other annotationType could be Column.class, JSONSerialize, ManyToMany, oneToMany, ...
-//                        if (a.annotationType() == Id.class) this.primaryKey = f.getName();
-//                    }
-//                    this.addField(f.getName(), f.getType().getName());
-//                }
-//
-//                if (pojo.getSuperclass() != Object.class) {
-//                    var toConcat = new EntityFields(pojo.getSuperclass());
-//                    this.addFields(toConcat.getFields());
-//                    if (this.primaryKey == null) this.primaryKey = toConcat.primaryKey;
-//                }
-//            }
-//        }
-//
-//        public List<FieldDef> addField(String name, String typeName) {
-//            if (name != null) this.fields.add(new FieldDef(name, typeName));
-//            return this.fields;
-//        }
-//
-//        public List<FieldDef> addFields(List<FieldDef> newFields) {
-//            this.fields.addAll(newFields);
-//            return this.fields;
-//        }
-//
-//        public List<FieldDef> getFields() {
-//            return this.fields;
-//        }
-//
-//        public String getPrimaryKey() {
-//            return primaryKey;
-//        }
-//
-//        public void setPrimaryKey(String primaryKey) {
-//            this.primaryKey = primaryKey;
-//        }
-//
-//        public String fieldsList() {
-//            return fields.stream().map(field -> field.getName()).collect(Collectors.joining(", "));
-//        }
-//
-//        public FieldDef matching(String columnName) {
-//            if (columnName.length() < 1) return null;
-//            final String columNameLowerFirstChar = columnName.substring(0, 1).toUpperCase() + columnName.substring(1);
-//            return this.fields.stream().filter(field ->
-//                    field.getName().equalsIgnoreCase(columnName)
-//                            || field.getName().equalsIgnoreCase(columNameLowerFirstChar)
-//            ).findFirst().orElse(null);
-//        }
-//
-//    }
-
     private static String UpperCaseFirstLetter(String s) {
-        if (s.length() >= 1) {
+        if (s.length() >= 2) {
             return s.substring(0, 1).toUpperCase() + s.substring(1);
+        }else if(s.length() == 1){
+            return s.substring(0, 1).toUpperCase();
+        }
+        return "";
+    }
+
+    private static String LowerCaseFirstLetter(String s) {
+        if (s.length() >= 2) {
+            return s.substring(0, 1).toLowerCase() + s.substring(1);
+        }else if(s.length() == 1){
+            return s.substring(0, 1).toLowerCase();
         }
         return "";
     }
@@ -258,7 +173,7 @@ public class CucumberUtils {
 
     public static Class<?> findClassPerNameCanBePlural(String entityName) {
         // An entity class name is reputed to start with an uppercase letter
-        final String s = entityName.substring(0, 1).toUpperCase() + entityName.substring(1);
+        final String s = UpperCaseFirstLetter(entityName);
         List<String> potentialClasses = Arrays.asList(s, // Uppercase first letter
                 s.substring(0, entityName.length() - 1) // Uppercase first letter and delete potential ending s
         );
@@ -306,7 +221,7 @@ public class CucumberUtils {
             }
             // Have a second try by un-capitalizing first letter
             if (equivalentFieldInInstance == null) {
-                cucumberFieldName = cucumberFieldName.substring(0, 1).toLowerCase() + cucumberFieldName.substring(1);
+                cucumberFieldName = LowerCaseFirstLetter(cucumberFieldName);
                 try {
                     equivalentFieldInInstance = getRecursivelySuperClassDeclaredField(refl, cucumberFieldName);
                 } catch (NoSuchFieldException e2) {

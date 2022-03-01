@@ -6,8 +6,9 @@ Feature: Event functionalities
     Given this list of events :
 #    Test when one column is id
 #    Test less row persisted than in Cucumber table
-    # Mixer   capitalisation ou non
-      | title            | nbStars | comment    | oneEnum |
+#    Mix capitalisation or not
+#    Test with enum column
+      | title            | NbStars | Comment    | oneEnum |
       | Jazz in Lille    | 5       |            | Titi    |
       | Hard rock folies | 1       | So noisy ! | Titi    |
       | Old melodies     |         | For aged   | Toto    |

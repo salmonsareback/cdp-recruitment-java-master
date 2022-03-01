@@ -7,25 +7,18 @@ import io.cucumber.datatable.DataTable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.beans.IntrospectionException;
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
-import static org.apache.commons.lang3.reflect.FieldUtils.getAllFields;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
-import static org.assertj.core.api.InstanceOfAssertFactories.type;
 
 public class CucumberUtils {
     // TODO fetch models package
@@ -53,24 +46,41 @@ public class CucumberUtils {
         }
     }
 
-    public static <T extends Object> T newEntityInstanceFromMap(Map<String, String> cucumberTableRow, Class<T> entityClass) throws InstantiationException, IllegalAccessException {
+    public static <T extends Object> T newEntityInstanceFromMap(Map<String, String> cucumberTableRow, Class<T> entityClass) {
         return newEntityInstanceFromMap(cucumberTableRow, entityClass, "[blank]");
     }
 
-    public static <T extends Object> T newEntityInstanceFromMap(Map<String, String> cucumberTableRow, Class<T> entityClass, String replaceWithEmptyString) throws InstantiationException, IllegalAccessException {
+    public static <T extends Object> T newEntityInstanceFromMap(Map<String, String> cucumberTableRow, Class<T> entityClass, String replaceWithEmptyString) {
         T instance;
         try {
             instance = entityClass.getDeclaredConstructor().newInstance();
-        } catch (NoSuchMethodException | InvocationTargetException e) {
-            throw new CucumberException("Class " + entityClass + " is missing  null-arg constructor (no arguments).");
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            throw new CucumberException("Class " + entityClass + " is missing  null-arg constructor (no arguments).\r\n" + e.getMessage());
         }
         Class<? extends Object> refl = instance.getClass();
         var paramTypes = new Class[1];
 
 
-        // TODO double chance wit lowercase
-        // TODO capturer column
         cucumberTableRow.forEach((cucumberFieldName, cucumberFieldValue) -> {
+            Field fieldOfClass;
+            try {
+                fieldOfClass = getRecursivelySuperClassDeclaredField(refl, cucumberFieldName);
+            } catch (NoSuchFieldException e) {
+                fieldOfClass = null;
+            }
+            // try a second chance with first letter lowercase
+            // TODO check length >1
+            cucumberFieldName = cucumberFieldName.substring(0, 1).toLowerCase() + cucumberFieldName.substring(1);
+            try {
+                fieldOfClass = getRecursivelySuperClassDeclaredField(refl, cucumberFieldName);
+            } catch (NoSuchFieldException e2) {
+                fieldOfClass = null;
+            }
+
+            if (fieldOfClass == null) {
+                throw new CucumberException("Attribute \"" + cucumberFieldName + "\" does not exists for entity \"" + entityClass.getSimpleName() + "\".\r\n" +
+                        "List of attributes is " + getRecursivelySuperClassDeclaredFields(refl).stream().map(Field::getName).collect(Collectors.joining(", ")));
+            }
             try {
                 var propertyDescriptor = new PropertyDescriptor(cucumberFieldName, refl);
                 var instanceField = getRecursivelySuperClassDeclaredField(refl, cucumberFieldName);
@@ -234,14 +244,14 @@ public class CucumberUtils {
 
     public static List<?> createCollectionOfTransientEntitiesFromNameAndCucumberTable(String entityName, DataTable table) throws ClassNotFoundException {
         Class<?> type = findClassPerNameCanBePlural(entityName);
+        AtomicInteger rowNb = new AtomicInteger(0);
         List<?> entities = table.asMaps(String.class, String.class).stream().map(entry -> {
             try {
+                rowNb.getAndIncrement();
                 return newEntityInstanceFromMap(entry, type);
-            } catch (CucumberException e) {
-                throw e;
-            } catch (Exception e) {
+            } catch (AssertionError | CucumberException e) {
+                throw new CucumberException("Cucumber table at row " + rowNb + " :\r\n" + e.getMessage());
             }
-            return null;
         }).collect(Collectors.toList());
         return entities;
     }

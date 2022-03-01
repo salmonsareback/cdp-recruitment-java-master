@@ -8,10 +8,10 @@ Feature: Event functionalities
 #    Test less row persisted than in Cucumber table
     # Mixer   capitalisation ou non
       | title            | nbStars | comment    | oneEnum |
-      | Jazz in Lille    | 5       |            | titi    |
-      | Hard rock folies | 1       | So noisy ! | titi    |
-      | Old melodies     |         | For aged   | toto    |
-      | Pop 80th         | 3       | [blank]    | toto    |
+      | Jazz in Lille    | 5       |            | Titi    |
+      | Hard rock folies | 1       | So noisy ! | Titi    |
+      | Old melodies     |         | For aged   | Toto    |
+      | Pop 80th         | 3       | [blank]    | Toto    |
 
 #      | Title            | NbStars | Comment    | Manager.firstName |
 #      | Jazz in Lille    | 5       |            | Pierre            |
@@ -39,7 +39,7 @@ Feature: Event functionalities
 #    test with wrong value
 #    test with [blank] versus null
       | Title            | NbStars | comment    |    oneEnum |
-      | Jazz in Lille    | 05      |            |    titi    |
-      | Hard rock folies | 1       | So noisy ! |    titi    |
+      | Jazz in Lille    | 05      |            |    Titi    |
+      | Hard rock folies | 1       | So noisy ! |    Titi    |
       | Old melodies     |         | For aged   |    toto    |
       | Pop 80th         | 3       | [blank]    |    toto    |

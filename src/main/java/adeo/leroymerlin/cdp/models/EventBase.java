@@ -72,6 +72,10 @@ public class EventBase {
         this.comment = comment;
     }
 
+    public String getComment() {
+        return comment;
+    }
+
     public TestEnum getOneEnum() {
         return oneEnum;
     }
@@ -80,6 +84,9 @@ public class EventBase {
         this.oneEnum = oneEnum;
     }
 
+    public void setOneEnum(String oneEnum) {
+        this.oneEnum = TestEnum.valueOf(oneEnum);
+    }
     public Integer getNbStars() {
         return nbStars;
     }

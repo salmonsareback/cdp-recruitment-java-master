@@ -16,6 +16,10 @@ Feature: Event functionalities
       | Old melodies     |         | For aged   | Toto    |
       | Pop 80th         | 3       | [blank]    | Toto    |
 
+    And related to it bands :
+      | name                     |
+      | Guitar and voice friends |
+      | Sounders of fun          |
 #      | Title            | NbStars | Comment    | Manager.firstName |
 #      | Jazz in Lille    | 5       |            | Pierre            |
 #      | Hard rock folies | 1       | So noisy ! | Pierre            |

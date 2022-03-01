@@ -10,14 +10,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.lang.reflect.Field;
 import java.util.List;
 
 import static adeo.leroymerlin.cdp.cucumber.steps.CucumberUtils.*;
+import static org.apache.commons.lang3.ArrayUtils.lastIndexOf;
 
 @Transactional
 public class GenericSteps {
 
-    private List<Event> foundEvents;
+    private Object lastEntity;
 
     @PersistenceContext
     EntityManager entityManager;
@@ -27,22 +29,27 @@ public class GenericSteps {
      * It is followed by a table where each column header is a property name
      * Example :
      * Given this list of events :
-     *   | title            | NbStars | Comment    |
-     *   | Jazz in Lille    | 5       |  [blank]   |
-     *   | Hard rock folies | 1       | So noisy ! |
-     *   | Old melodies     |         | For aged   |
+     * | title            | NbStars | Comment    |
+     * | Jazz in Lille    | 5       |  [blank]   |
+     * | Hard rock folies | 1       | So noisy ! |
+     * | Old melodies     |         | For aged   |
+     * <p>
+     * The only request is that an Entity class Event exists
+     * with properties and getter/setter for title, nbStars, comment
+     * Note :
+     * Capitalizing property in cucumber table is tolerated
+     * [blank] stands for empty string where nothing stands for null
      *
-     *   The only request is that an Entity class Event exists
-     *   with properties and getter/setter for title, nbStars, comment
-     *   Note :
-     *       Capitalizing property in cucumber table is tolerated
-     *       [blank] stands for empty string where nothing stands for null
-     * @author  Loïc Ducatillon
+     * @author Loïc Ducatillon
      */
     @Given("^this list of ([a-zA-Z]+[a-zA-Z0-9_]*) :$")
-    public void genericPersistListOfOneEntity(String entityName, DataTable table) throws ClassNotFoundException {
+    public void genericPersistListOfOneEntity(String entityName, DataTable table) {
         var entities = createCollectionOfTransientEntitiesFromNameAndCucumberTable(entityName, table);
-        entities.stream().forEach(entity -> entityManager.persist(entity));
+        entities.stream().forEach(entity -> {
+            entityManager.persist(entity);
+            // Let chaining with 'And related to its otherEntity' by memorizing last entity
+            lastEntity = entity;
+        });
     }
 
     @Then("^this last list of ([a-zA-Z]+[a-zA-Z0-9_]*) :$")
@@ -72,53 +79,71 @@ public class GenericSteps {
      * It is followed by a table where each column header is a property name
      * Example :
      * And related to its bands :
-     *   | name             |
-     *   | Charly           |
-     *   | Petter           |
+     * | name             |
+     * | Charly           |
+     * | Petter           |
+     * <p>
+     * The only request is that another Entity class Band exists
+     * and is related to Event (one or multiple relation)
+     * with properties and getter/setter for name
+     * Note :
+     * Capitalizing property in cucumber table is tolerated
+     * [blank] stands for empty string where nothing stands for null
+     * The related entities (band in the example) would be created if not exists
+     * And relation would be settled
      *
-     *   The only request is that another Entity class Band exists
-     *   and is related to Event (one or multiple relation)
-     *   with properties and getter/setter for name
-     *   Note :
-     *       Capitalizing property in cucumber table is tolerated
-     *       [blank] stands for empty string where nothing stands for null
-     *       The related entities (band in the example) would be created if not exists
-     *       And relation would be settled
-     * @author  Loïc Ducatillon
+     * @author Loïc Ducatillon
      */
-//    @And("related to it[s]? ([a-zA-Z]+[a-zA-Z0-9_]*)[s]? :$")
-//    public void TODO_2(){
-        // TODO store recursively for the last Given
+    @And("related to it[s]? ([a-zA-Z]+[a-zA-Z0-9_]*)[s]? :$")
+    public void TODO_2(String entityName, DataTable table) {
+//     TODO store recursively for the last Given
+        // Check if previous entity is related to this entity
+        Class<?> entityClass = findClassPerNameCanBePlural(entityName);
+        var fieldsRelatedEntity = getRecursivelySuperClassDeclaredFields(lastEntity.getClass());
+        Field relatedField = fieldsRelatedEntity.stream().filter(field -> field.getGenericType().toString().contains(entityClass.getName())).findFirst().orElse(null);
+        if (relatedField == null)
+            throw new CucumberException("Entity \"" + lastEntity.getClass().getSimpleName() + "\" has no relation with entity\" " + entityClass.getSimpleName() + "\".");
 
-//    }
+        var entities = createCollectionOfTransientEntitiesFromNameAndCucumberTable(entityName, table);
+        entities.stream().forEach(entity ->  {
+            // Persist entity if not exists
+
+
+            // Link with relation
+
+            // Let chaining with 'And related to its otherEntity' by memorizing last entity
+            lastEntity = entity;
+        });
+
+    }
 
 
 //    @And("^it[s]? related ([1|one|only one|some|exactly [0-9]*) ([a-zA-Z]+[a-zA-Z0-9_]*)[s]? :$")
 //    public void TODO_1 (){
-        // TODO store recursively if only one
-        /**
-         * This sentence is used to assert a relationed list instance of one entity
-         * It is related to the last row of this list of parent entity
-         * It is followed by a table where each column header is a property name
-         * Example :
-         * And its related exactly 3 bands :
-         *   | name             |
-         *   | Charly           |
-         *   | Petter           |
-         *
-         *   The only request is that another Entity class Band exists
-         *   and is related to Event (one or multiple relation)
-         *   with properties and getter/setter for name
-         *   Using 'only one' or 'exactly x' will also assert the number of related entities
-         *   Note :
-         *       Capitalizing property in cucumber table is tolerated
-         *       [blank] stands for empty string where nothing stands for null
-         *       The related entities (band in the example) would be created if not exists
-         *       And relation would be settled
-         * @author  Loïc Ducatillon
-         */
+// TODO store recursively if only one
+/**
+ * This sentence is used to assert a relationed list instance of one entity
+ * It is related to the last row of this list of parent entity
+ * It is followed by a table where each column header is a property name
+ * Example :
+ * And its related exactly 3 bands :
+ * | name             |
+ * | Charly           |
+ * | Petter           |
+ * <p>
+ * The only request is that another Entity class Band exists
+ * and is related to Event (one or multiple relation)
+ * with properties and getter/setter for name
+ * Using 'only one' or 'exactly x' will also assert the number of related entities
+ * Note :
+ * Capitalizing property in cucumber table is tolerated
+ * [blank] stands for empty string where nothing stands for null
+ * The related entities (band in the example) would be created if not exists
+ * And relation would be settled
+ *
+ * @author Loïc Ducatillon
+ */
 //    }
-
 
 
 }

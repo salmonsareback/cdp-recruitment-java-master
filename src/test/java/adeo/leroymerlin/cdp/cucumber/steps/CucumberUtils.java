@@ -28,7 +28,7 @@ public class CucumberUtils {
         assertMappedCucumberTableEqualEntityInstances(instances, mappedCucumberTable, "[blank]");
     }
 
-    public static <T> void assertMappedCucumberTableEqualEntityInstances(List<T> instances, @NotNull List<Map<String, String>> mappedCucumberTable, String replaceWithEmptyString) throws Exception {
+    public static <T> void assertMappedCucumberTableEqualEntityInstances(List<T> instances, @NotNull List<Map<String, String>> mappedCucumberTable, String replaceWithEmptyString)  {
         Class<?> entityClass = null;
         if (mappedCucumberTable.size() == 0) throw new CucumberException("Cucumber table should at least one row.");
         else if (instances.size() == 0) throw new CucumberException("No rows fetched to compare with Cucumber table.");
@@ -57,7 +57,7 @@ public class CucumberUtils {
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new CucumberException("Class " + entityClass + " is missing  null-arg constructor (no arguments).\r\n" + e.getMessage());
         }
-        Class<? extends Object> refl = instance.getClass();
+        Class<?> refl = instance.getClass();
         var paramTypes = new Class[1];
 
 
@@ -157,7 +157,7 @@ public class CucumberUtils {
         return "";
     }
 
-    public static List<?> createCollectionOfTransientEntitiesFromNameAndCucumberTable(String entityName, DataTable table) throws ClassNotFoundException {
+    public static List<?> createCollectionOfTransientEntitiesFromNameAndCucumberTable(String entityName, DataTable table){
         Class<?> type = findClassPerNameCanBePlural(entityName);
         AtomicInteger rowNb = new AtomicInteger(0);
         List<?> entities = table.asMaps(String.class, String.class).stream().map(entry -> {
@@ -294,7 +294,7 @@ public class CucumberUtils {
     }
 
     //     List of fields including those inherited
-    private static List<Field> getRecursivelySuperClassDeclaredFields(Class clazz) {
+    static List<Field> getRecursivelySuperClassDeclaredFields(Class clazz) {
         if (clazz == null) {
             return Collections.emptyList();
         }

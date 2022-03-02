@@ -3,6 +3,10 @@ Feature: Event functionalities
 
   Scenario: test Given for generic entity with attributes named in column header
 
+    Given this list of bands :
+      | name                     |
+      | Sounders of fun          |
+
     Given this list of events :
 #    Test when one column is id
 #    Test less row persisted than in Cucumber table
@@ -16,7 +20,7 @@ Feature: Event functionalities
       | Old melodies     |         | For aged   | Toto    |
       | Pop 80th         | 3       | [blank]    | Toto    |
 
-    And related to it bands :
+    And this later having bands :
       | name                     |
       | Guitar and voice friends |
       | Sounders of fun          |
@@ -39,6 +43,15 @@ Feature: Event functionalities
 #      | Crazy  trio    | 1             |
 #      | The black band | 2             |
 #      | Best friends   | 3             |
+
+
+    Then this last list of bands :
+      | name                     |
+      | Sounders of fun          |
+      | Guitar and voice friends |
+      | Crazy  trio    |
+      | The black band |
+      | Best friends   |
 
     Then this last list of events :
 #    test when one column is id

@@ -28,7 +28,7 @@ public class CucumberUtils {
         assertMappedCucumberTableEqualEntityInstances(instances, mappedCucumberTable, "[blank]");
     }
 
-    public static <T> void assertMappedCucumberTableEqualEntityInstances(List<T> instances, @NotNull List<Map<String, String>> mappedCucumberTable, String replaceWithEmptyString)  {
+    public static <T> void assertMappedCucumberTableEqualEntityInstances(List<T> instances, @NotNull List<Map<String, String>> mappedCucumberTable, String replaceWithEmptyString) {
         Class<?> entityClass = null;
         if (mappedCucumberTable.size() == 0) throw new CucumberException("Cucumber table should at least one row.");
         else if (instances.size() == 0) throw new CucumberException("No rows fetched to compare with Cucumber table.");
@@ -73,8 +73,8 @@ public class CucumberUtils {
                 fieldOfClass = null;
             }
             // try a second chance with first letter lowercase
-            if(fieldOfClass==null) {
-                cucumberFieldName = LowerCaseFirstLetter(cucumberFieldName);
+            if (fieldOfClass == null) {
+                cucumberFieldName = lowerCaseFirstLetter(cucumberFieldName);
                 try {
                     fieldOfClass = getRecursivelySuperClassDeclaredField(refl, cucumberFieldName);
                 } catch (NoSuchFieldException e2) {
@@ -125,39 +125,112 @@ public class CucumberUtils {
                     } catch (IllegalArgumentException | InvocationTargetException e) {
                         throw new CucumberException("Cucumber could call setter for attribute \"" + cucumberFieldName + "\" with String value \"" + cucumberFieldValue + "\" but the error was returned :\r\n " + e.getCause() + "\r\n" + e.getMessage());
                     } catch (Exception e) {
-                        throw new CucumberException("Cucumber failed to use setter for attribute \"" + cucumberFieldName + "\" with param type \"" + paramTypes[0].getName() + "\" for entity \"" + refl.getSimpleName() + "\".\r\n" + "==> Could be solved by overloading setter set" + UpperCaseFirstLetter(cucumberFieldName) + " casting string to adequate attribute type. Example :\r\n" + "        public void setOneEnum(String oneEnum){\r\n" + "          this.oneEnum = TestEnum.valueOf(oneEnum);\r\n" + "        }\r\n");
+                        throw new CucumberException("Cucumber failed to use setter for attribute \"" + cucumberFieldName + "\" with param type \"" + paramTypes[0].getName() + "\" for entity \"" + refl.getSimpleName() + "\".\r\n" + "==> Could be solved by overloading setter set" + upperCaseFirstLetter(cucumberFieldName) + " casting string to adequate attribute type. Example :\r\n" + "        public void setOneEnum(String oneEnum){\r\n" + "          this.oneEnum = TestEnum.valueOf(oneEnum);\r\n" + "        }\r\n");
                     }
                 }
             } catch (CucumberException e) {
                 throw e;
             } catch (IntrospectionException e) {
-                throw new CucumberException("Cucumber table has the named column : \"" + cucumberFieldName + "\" ,\r\n" + "Setter and/or getter for attribute \"" + UpperCaseFirstLetter(cucumberFieldName) + "\" is missing.\r\n");
+                throw new CucumberException("Cucumber table has the named column : \"" + cucumberFieldName + "\" ,\r\n" + "Setter and/or getter for attribute \"" + upperCaseFirstLetter(cucumberFieldName) + "\" is missing.\r\n");
             } catch (Exception ex) {
-                throw new CucumberException("Cucumber table has the named column : \"" + cucumberFieldName + "\" ,\r\n" + "Setter for attribute \"" + UpperCaseFirstLetter(cucumberFieldName) + "\" with param type " + paramTypes[0] + " throws " + ex.getClass().getName() + "\r\n" + ex.getMessage());
+                throw new CucumberException("Cucumber table has the named column : \"" + cucumberFieldName + "\" ,\r\n" + "Setter for attribute \"" + upperCaseFirstLetter(cucumberFieldName) + "\" with param type " + paramTypes[0] + " throws " + ex.getClass().getName() + "\r\n" + ex.getMessage());
             }
         });
         return instance;
     }
 
-    private static String UpperCaseFirstLetter(String s) {
+    public static <T extends Object> Map<String, String> checkAndFormatMapForEntity(Map<String, String> cucumberTableRow, Class<T> entityClass) {
+        return checkAndFormatMapForEntity(cucumberTableRow, entityClass, "[blank]");
+    }
+
+    public static <T extends Object> Map<String, String> checkAndFormatMapForEntity(Map<String, String> cucumberTableRow, Class<T> entityClass, String replaceWithEmptyString) {
+//        T instance;
+//        try {
+//            instance = entityClass.getDeclaredConstructor().newInstance();
+//        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+//            throw new CucumberException("Class " + entityClass + " is missing  null-arg constructor (no arguments).\r\n" + e.getMessage());
+//        }
+//        Class<?> refl = instance.getClass();
+//        var paramTypes = new Class[1];
+
+        var returned = new HashMap<String, String>();
+
+        cucumberTableRow.forEach((cucumberFieldName, cucumberFieldValue) -> {
+            // Check if fieldName is not empty
+            if (cucumberFieldName == null || cucumberFieldName.length() == 0) {
+                throw new CucumberException("Cucumber header is empty.");
+            }
+            Field fieldOfClass;
+            try {
+                fieldOfClass = getRecursivelySuperClassDeclaredField(entityClass, cucumberFieldName);
+            } catch (NoSuchFieldException e) {
+                fieldOfClass = null;
+            }
+            // try a second chance with first letter lowercase
+            if (fieldOfClass == null) {
+                cucumberFieldName = lowerCaseFirstLetter(cucumberFieldName);
+                try {
+                    fieldOfClass = getRecursivelySuperClassDeclaredField(entityClass, cucumberFieldName);
+                } catch (NoSuchFieldException e2) {
+                    fieldOfClass = null;
+                }
+            }
+            if (fieldOfClass == null) {
+                throw new CucumberException("Attribute \"" + cucumberFieldName + "\" does not exists for entity \"" + entityClass.getSimpleName() + "\".\r\n" +
+                        "List of attributes : " + getRecursivelySuperClassDeclaredFields(entityClass).stream().map(Field::getName).collect(Collectors.joining(", ")));
+            }
+//            try {
+//                var propertyDescriptor = new PropertyDescriptor(cucumberFieldName, refl);
+            // Check if this property is annotated with @Id and @GeneratedValue in entity class
+            if (Arrays.stream(fieldOfClass.getAnnotations()).filter(a -> a.annotationType() == Id.class).count() > 0 && Arrays.stream(fieldOfClass.getAnnotations()).filter(a -> a.annotationType() == GeneratedValue.class).count() > 0) {
+                throw new CucumberException("Identifier \"" + cucumberFieldName + "\" is annotated @Id and @GeneratedValue. Values are unpredictable as being generated automatically. Such, cucumber table should not have header \"" + entityClass.getSimpleName() + "\".");
+            }
+            // Check if replaceWithEmptyString
+            if (cucumberFieldValue.trim().equals(replaceWithEmptyString)) {
+                returned.put(cucumberFieldName, "\"\"");
+            } else if (cucumberFieldValue == null) {
+                returned.put(cucumberFieldName, "null");
+            } else {
+                // Check if the value should be quoted or not
+                switch (fieldOfClass.getType().getSimpleName()) {
+//                    switch (propertyDescriptor.getPropertyType().getSimpleName()) {
+                    case "String", "char", "Enum", "Character":
+                        returned.put(cucumberFieldName, "'" + cucumberFieldValue + "'");
+                        break;
+                    default:
+                        returned.put(cucumberFieldName, cucumberFieldValue);
+                }
+            }
+//               } catch (CucumberException e) {
+//                throw e;
+//            } catch (IntrospectionException e) {
+//                throw new CucumberException("Cucumber table has the named column : \"" + cucumberFieldName + "\" ,\r\n" + "Setter and/or getter for attribute \"" + upperCaseFirstLetter(cucumberFieldName) + "\" is missing.\r\n");
+//            } catch (NoSuchFieldException ex) {
+//                throw new CucumberException("Cucumber table has the named column : \"" + cucumberFieldName + "\" ,\r\n" + "Setter for attribute \"" + upperCaseFirstLetter(cucumberFieldName) + "\" with param type " + paramTypes[0] + " throws " + ex.getClass().getName() + "\r\n" + ex.getMessage());
+//            }
+        });
+        return returned;
+    }
+
+    private static String upperCaseFirstLetter(String s) {
         if (s.length() >= 2) {
             return s.substring(0, 1).toUpperCase() + s.substring(1);
-        }else if(s.length() == 1){
+        } else if (s.length() == 1) {
             return s.substring(0, 1).toUpperCase();
         }
         return "";
     }
 
-    private static String LowerCaseFirstLetter(String s) {
+    private static String lowerCaseFirstLetter(String s) {
         if (s.length() >= 2) {
             return s.substring(0, 1).toLowerCase() + s.substring(1);
-        }else if(s.length() == 1){
+        } else if (s.length() == 1) {
             return s.substring(0, 1).toLowerCase();
         }
         return "";
     }
 
-    public static List<?> createCollectionOfTransientEntitiesFromNameAndCucumberTable(String entityName, DataTable table){
+    public static List<?> createCollectionOfTransientEntitiesFromNameAndCucumberTable(String entityName, DataTable table) {
         Class<?> type = findClassPerNameCanBePlural(entityName);
         AtomicInteger rowNb = new AtomicInteger(0);
         List<?> entities = table.asMaps(String.class, String.class).stream().map(entry -> {
@@ -173,7 +246,7 @@ public class CucumberUtils {
 
     public static Class<?> findClassPerNameCanBePlural(String entityName) {
         // An entity class name is reputed to start with an uppercase letter
-        final String s = UpperCaseFirstLetter(entityName);
+        final String s = upperCaseFirstLetter(entityName);
         List<String> potentialClasses = Arrays.asList(s, // Uppercase first letter
                 s.substring(0, entityName.length() - 1) // Uppercase first letter and delete potential ending s
         );
@@ -221,7 +294,7 @@ public class CucumberUtils {
             }
             // Have a second try by un-capitalizing first letter
             if (equivalentFieldInInstance == null) {
-                cucumberFieldName = LowerCaseFirstLetter(cucumberFieldName);
+                cucumberFieldName = lowerCaseFirstLetter(cucumberFieldName);
                 try {
                     equivalentFieldInInstance = getRecursivelySuperClassDeclaredField(refl, cucumberFieldName);
                 } catch (NoSuchFieldException e2) {
@@ -302,6 +375,7 @@ public class CucumberUtils {
         List<Field> filteredFields = Arrays.stream(clazz.getDeclaredFields())
                 // TODO ligne suivante desactivée pour public void genericCheckPersistedListOfOneEntity
                 // Mais ne pose pas de soucis dans les méthode de cette classe ??
+                // Mais doit-on vraiment filtrer les attributs protected et private dans le cadre des tests ??
 //                .filter(f -> Modifier.isPublic(f.getModifiers()) || Modifier.isProtected(f.getModifiers()))
                 .collect(Collectors.toList());
         result.addAll(filteredFields);

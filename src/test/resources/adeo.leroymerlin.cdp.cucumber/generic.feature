@@ -20,6 +20,12 @@ Feature: Event functionalities
       | Old melodies     |         | For aged   | Toto    |
       | Pop 80th         | 3       | [blank]    | Toto    |
 
+#    And this later having manager :
+#      | FirstName |
+#      | Peter     |
+#    the next And this later would be linked to Manager Peter
+    # And this later having final manager : ????? to stop propagation
+
     And this later having bands :
       | name                     |
       | Guitar and voice friends |

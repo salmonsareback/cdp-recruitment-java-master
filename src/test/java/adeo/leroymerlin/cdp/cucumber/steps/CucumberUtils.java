@@ -212,7 +212,7 @@ public class CucumberUtils {
         return returned;
     }
 
-    private static String upperCaseFirstLetter(String s) {
+    public static String upperCaseFirstLetter(String s) {
         if (s.length() >= 2) {
             return s.substring(0, 1).toUpperCase() + s.substring(1);
         } else if (s.length() == 1) {

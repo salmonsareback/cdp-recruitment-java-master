@@ -9,8 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.util.Map;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static adeo.leroymerlin.cdp.cucumber.steps.CucumberUtils.*;
@@ -102,24 +106,84 @@ public class GenericSteps {
         Field relatedField = fieldsRelatedEntity.stream().filter(field -> field.getGenericType().toString().contains(entityClass.getName())).findFirst().orElse(null);
         if (relatedField == null)
             throw new CucumberException("Entity \"" + lastEntity.getClass().getSimpleName() + "\" has no relation with entity\" " + entityClass.getSimpleName() + "\".");
-//        List<?> entities =
+//        AtomicReference<Object> lastMatching = null;
         table.asMaps(String.class, String.class).stream().forEach(entry -> {
             // Persist entity if not exists
             var entityCriterias = checkAndFormatMapForEntity(entry, entityClass);
             Object matching = this.findPersistedWithCriterias(entityCriterias, entityClass);
             if (matching == null) {
                 // Create it
-                matching = newEntityInstanceFromMap(entry,entityClass);
+                matching = newEntityInstanceFromMap(entry, entityClass);
                 entityManager.persist(matching);
             }
+//            lastMatching.set(matching);
 
-            // Link with relation
+            // Link with multiple relations
+            Class initClass = relatedField.getType();
 
-            // Let chaining with 'And related to its otherEntity' by memorizing last entity
-//     TODO store recursively for the last Given
-//            lastEntity = entity;
+            if (initClass.equals(Set.class) || initClass.equals(List.class) || initClass.equals(Arrays.class)) {
+                //    Make a try with method addEntity, ex addBands for a Set<Band>
+                var paramTypes = new Class[1];
+                paramTypes[0] = initClass;
+                Method addRelation = null;
+                try {
+                    addRelation = lastEntity.getClass().getDeclaredMethod(upperCaseFirstLetter(relatedField.getName()), paramTypes);
+                    addRelation.invoke(lastEntity, matching);
+                    entityManager.merge(lastEntity);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new CucumberException("Cucumber failed to invoke " + addRelation.getName() + " method on entity \"" + lastEntity.getClass().getSimpleName() + "\".");
+                } catch (NoSuchMethodException e) {
+                    // Make a second try with setEntities
+                    Method getRelation;
+                    try {
+                        getRelation = new PropertyDescriptor(upperCaseFirstLetter(relatedField.getName()), lastEntity.getClass()).getReadMethod();
+                    } catch (IntrospectionException ex) {
+                        throw new CucumberException("Cucumber could not find getter of \"" + lastEntity.getClass().getSimpleName() + "\" " + "for relation (@ManyToOne or @ManyToMany) to \"" + initClass.getSimpleName() + "\".");
+                    }
+                    Method setRelation;
+                    try {
+                        setRelation = new PropertyDescriptor(relatedField.getName(), lastEntity.getClass()).getWriteMethod();
+                    } catch (IntrospectionException ex) {
+                        throw new CucumberException("Cucumber could not find setter of \"" + lastEntity.getClass().getSimpleName() + "\" " + "for relation (@ManyToOne or @ManyToMany) to \"" + relatedField.getName() + "\".");
+                    }
+                    Collection related;
+                    try {
+                        related = (Collection) getRelation.invoke(lastEntity, new Class[0]);
+                    } catch (IllegalAccessException | InvocationTargetException ex) {
+                        throw new CucumberException("Cucumber failed to invoke " + getRelation.getName() + " method on entity \"" + lastEntity.getClass().getSimpleName() + "\".");
+                    }
+                    try {
+                        related.add(matching);
+                        setRelation.invoke(lastEntity, related);
+                        entityManager.merge(lastEntity);
+                    } catch (IllegalAccessException | InvocationTargetException ex) {
+                        throw new CucumberException("Cucumber failed to invoke " + setRelation.getName() + " method on entity \"" + lastEntity.getClass().getSimpleName() + "\".");
+                    }
+                }
+            } else {
+                // This would be a single relation (@oneToMany or @OneToOne)
+                Method setRelation;
+                try {
+                    setRelation = new PropertyDescriptor(relatedField.getName(), lastEntity.getClass()).getWriteMethod();
+                } catch (IntrospectionException e) {
+                    throw new CucumberException("Cucumber could not find setter of \"" + lastEntity.getClass().getSimpleName() + "\" " + "for relation (@OneToMany or @OneToOne) to \"" + relatedField.getName() + "\".");
+
+                }
+                try {
+                    setRelation.invoke(lastEntity, matching);
+                    entityManager.merge(lastEntity);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new CucumberException("Cucumber failed to invoke " + setRelation.getName() + " method on entity \"" + lastEntity.getClass().getSimpleName() + "\".");
+                }
+            }
+
         });
+            // Let chaining with 'And related to its otherEntity' by memorizing last entity
+//     TODO store recursively for the last Given  without using stop propagation
+//            lastEntity = lastMatching;
 
+        //Clean out
+        entityManager.flush();
     }
 
 //    @And("^it[s]? related ([1|one|only one|some|exactly [0-9]*) ([a-zA-Z]+[a-zA-Z0-9_]*)[s]? :$")

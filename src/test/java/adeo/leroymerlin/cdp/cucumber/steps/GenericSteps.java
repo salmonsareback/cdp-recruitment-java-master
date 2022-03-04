@@ -7,11 +7,10 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
-import javax.persistence.PersistenceContext;
+import javax.persistence.*;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -98,8 +97,8 @@ public class GenericSteps {
      *
      * @author Loïc Ducatillon
      */
-    @Transactional
     @And("this later having (finally |)(a |an |)([a-zA-Z]+[a-zA-Z0-9_]*)[s]? :$")
+    @Transactional
     public void thisLaterHavingRelationalEntities(String finalRelation, String verbose, String entityName, DataTable table) {
         // Check if previous entity is related to this entity
         Class<?> entityClass = findClassPerNameCanBePlural(entityName);
@@ -185,14 +184,42 @@ public class GenericSteps {
         if (!finalRelation.equals("finally ")) {
             // Fetch the full object to force lazy relations and
             // to avoid exception at next step : Failed to lazily initialize a collection of role could not initialize ...
-
+            System.out.println("Refresh new matching");
+            System.out.println(matching);
             Field fieldId = getRecursivelySuperClassFieldIdentifier(matching.getClass());
+            System.out.println(fieldId);
             try {
                 Method getId = matching.getClass().getMethod("get" + upperCaseFirstLetter(fieldId.getName()), null);
                 Object id = getId.invoke(matching, null);
+                System.out.println(id);
                 lastEntity = entityManager.find(entityClass, id);
+                // Find each relation
+                for (Field field : getRecursivelySuperClassDeclaredFields(entityClass)) {
+                    // Check fetching type relation by relation type
+                    try {
+                        OneToMany oneToMany = field.getAnnotation(OneToMany.class);
+                        if (oneToMany != null && oneToMany.fetch().equals(FetchType.LAZY))
+                            new PropertyDescriptor(field.getName(), entityClass).getReadMethod().invoke(lastEntity);
+
+                        ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
+                        if (manyToMany != null && manyToMany.fetch().equals(FetchType.LAZY))
+                            new PropertyDescriptor(field.getName(), entityClass).getReadMethod().invoke(lastEntity);
+
+                        ManyToOne manyToOne = field.getAnnotation(ManyToOne.class);
+                        if (manyToOne != null && manyToOne.fetch().equals(FetchType.LAZY))
+                            new PropertyDescriptor(field.getName(), entityClass).getReadMethod().invoke(lastEntity);
+
+                    } catch (IntrospectionException | InvocationTargetException | IllegalAccessException e) {
+                        throw new CucumberException("Cucumber could not find getter for \"" + field.getName() + "\"\r\n", e);
+                    }
+
+                }
+
+                System.out.println(lastEntity);
 
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                System.out.println("Fail to refresh");
+                System.out.println(matching);
                 lastEntity = matching;
             }
 
@@ -202,9 +229,43 @@ public class GenericSteps {
         entityManager.flush();
     }
 
-//    @And("^it[s]? related ([1|one|only one|some|exactly [0-9]*) ([a-zA-Z]+[a-zA-Z0-9_]*)[s]? :$")
-//    public void TODO_1 (){
+    /**
+     * This sentence is used to assert the existence of some entities with some criteria
+     * It is followed by a table where each column header is a property name
+     * Example :
+     * And some events exist :
+     * #      | Title            | NbStars | Comment    |
+     * #      | Jazz in Lille    | 5       |            |
+     * #      | Hard rock folies | 1       | So noisy ! |
+     * #      | Old melodies     |         | For aged   |
+     * #      | Pop 80th         | 3       | [blank]    |
+     * <p>
+     * The only request is that the Entity class exists
+     * with properties and getter/setter for name
+     * Note :
+     * Capitalizing property in cucumber table is tolerated
+     * [blank] stands for empty string where nothing stands for null
+     *
+     * @author Loïc Ducatillon
+     */
+    @Then("^some ([a-zA-Z]+[a-zA-Z0-9_]*)[s]? exist :$")
+    public void someEntityExists(String entityName, DataTable table) {
+        if (table.isEmpty())
+            throw new CucumberException("Cucumber table is empty. This step should include a cucumber table where column header is a property.");
+        Class<?> clazz = findClassPerNameCanBePlural(entityName);
+        Object matching = new Object();
+        int row =1;
+        for (Map<String, String> entry : table.asMaps(String.class, String.class)) {
+            // Check if entity exists
+            var entityCriterias = checkAndFormatMapForEntity(entry, clazz);
+            matching = this.findPersistedWithCriterias(entityCriterias, clazz);
+            if (matching == null) {
+               throw new CucumberException("Row "+row+", no "+entityName+" matching whole those criteria.");
+            }
+            row++;
+        }
 // TODO store recursively if only one
+    }
 
     /**
      * This sentence is used to assert a relationed list instance of one entity
@@ -228,7 +289,11 @@ public class GenericSteps {
      *
      * @author Loïc Ducatillon
      */
+//    @And("^it[s]? related ([1|one|only one|some|exactly [0-9]*) ([a-zA-Z]+[a-zA-Z0-9_]*)[s]? :$")
+//    public void TODO_1() {
+//// TODO store recursively if only one
 //    }
+
     private Object findPersistedWithCriterias(Map<String, String> entityCriterias, Class<?> clazz) {
         String sql = "FROM " + clazz.getSimpleName() + " e WHERE ";
         String where = "";

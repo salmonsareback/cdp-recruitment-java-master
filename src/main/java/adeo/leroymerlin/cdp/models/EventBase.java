@@ -20,6 +20,7 @@ public class EventBase {
 
     private String comment;
 
+    @Enumerated(EnumType.STRING)
     private TestEnum oneEnum;
 
     @ManyToOne
@@ -87,6 +88,7 @@ public class EventBase {
     public void setOneEnum(String oneEnum) {
         this.oneEnum = TestEnum.valueOf(oneEnum);
     }
+
     public Integer getNbStars() {
         return nbStars;
     }

@@ -1,5 +1,6 @@
 package adeo.leroymerlin.cdp.cucumber.steps;
 
+import adeo.leroymerlin.cdp.models.TestEnum;
 import com.sun.istack.NotNull;
 import io.cucumber.core.exception.CucumberException;
 import io.cucumber.datatable.DataTable;
@@ -55,7 +56,7 @@ public class CucumberUtils {
         try {
             instance = entityClass.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new CucumberException("Class " + entityClass + " is missing  null-arg constructor (no arguments).\r\n" + e);
+            throw new CucumberException("Cucumber could not create a new instance of class " + entityClass + ". One reason could be missing  null-arg constructor (no arguments).\r\n" + e);
         }
         Class<?> refl = instance.getClass();
         var paramTypes = new Class[1];
@@ -82,8 +83,7 @@ public class CucumberUtils {
                 }
             }
             if (fieldOfClass == null) {
-                throw new CucumberException("Attribute \"" + cucumberFieldName + "\" does not exists for entity \"" + entityClass.getSimpleName() + "\".\r\n" +
-                        "List of attributes : " + getRecursivelySuperClassDeclaredFields(refl).stream().map(Field::getName).collect(Collectors.joining(", ")));
+                throw new CucumberException("Attribute \"" + cucumberFieldName + "\" does not exists for entity \"" + entityClass.getSimpleName() + "\".\r\n" + "List of attributes : " + getRecursivelySuperClassDeclaredFields(refl).stream().map(Field::getName).collect(Collectors.joining(", ")));
             }
             try {
                 var propertyDescriptor = new PropertyDescriptor(cucumberFieldName, refl);
@@ -176,8 +176,7 @@ public class CucumberUtils {
                 }
             }
             if (fieldOfClass == null) {
-                throw new CucumberException("Attribute \"" + cucumberFieldName + "\" does not exists for entity \"" + entityClass.getSimpleName() + "\".\r\n" +
-                        "List of attributes : " + getRecursivelySuperClassDeclaredFields(entityClass).stream().map(Field::getName).collect(Collectors.joining(", ")));
+                throw new CucumberException("Attribute \"" + cucumberFieldName + "\" does not exists for entity \"" + entityClass.getSimpleName() + "\".\r\n" + "List of attributes : " + getRecursivelySuperClassDeclaredFields(entityClass).stream().map(Field::getName).collect(Collectors.joining(", ")));
             }
 //            try {
 //                var propertyDescriptor = new PropertyDescriptor(cucumberFieldName, refl);
@@ -186,19 +185,21 @@ public class CucumberUtils {
                 throw new CucumberException("Identifier \"" + cucumberFieldName + "\" is annotated @Id and @GeneratedValue. Values are unpredictable as being generated automatically. Such, cucumber table should not have header \"" + entityClass.getSimpleName() + "\".");
             }
             // Check if replaceWithEmptyString
-            if (cucumberFieldValue.trim().equals(replaceWithEmptyString)) {
-                returned.put(cucumberFieldName, "\"\"");
-            } else if (cucumberFieldValue == null) {
+            if (cucumberFieldValue == null) {
                 returned.put(cucumberFieldName, "null");
+            }else if(cucumberFieldValue.trim().equals(replaceWithEmptyString)) {
+                returned.put(cucumberFieldName, "\"\"");
             } else {
                 // Check if the value should be quoted or not
-                switch (fieldOfClass.getType().getSimpleName()) {
-//                    switch (propertyDescriptor.getPropertyType().getSimpleName()) {
-                    case "String", "char", "Enum", "Character":
-                        returned.put(cucumberFieldName, "'" + cucumberFieldValue + "'");
-                        break;
-                    default:
-                        returned.put(cucumberFieldName, cucumberFieldValue);
+                if (fieldOfClass.getType() == String.class || fieldOfClass.getType() == char.class || fieldOfClass.getType() == Character.class ) {
+                    returned.put(cucumberFieldName, "'" + cucumberFieldValue + "'");
+                }else if( fieldOfClass.getType().getSuperclass() == Enum.class){
+                    // TODO implemented if @Enumerated(EnumType.STRING)
+                    returned.put(cucumberFieldName, "'" + cucumberFieldValue + "'");
+                    // Cope with Enums
+//           TODO         returned.put(cucumberFieldName,getValOfEnumType(fieldOfClass.getType(),cucumberFieldValue).toString());
+                } else {
+                    returned.put(cucumberFieldName, cucumberFieldValue);
                 }
             }
 //               } catch (CucumberException e) {
@@ -403,4 +404,13 @@ public class CucumberUtils {
     public static Field getRecursivelySuperClassFieldIdentifier(Class clazz) {
         return getRecursivelySuperClassDeclaredFields(clazz).stream().filter(field -> Arrays.stream(field.getAnnotations()).filter(a -> a.annotationType() == Id.class).count() > 0).findFirst().orElse(null);
     }
+
+    private static <T extends Enum<T>> Object getValOfEnumType(Class T, String val){
+        // TODO voir https://tomee.apache.org/examples-trunk/jpa-enumerated/
+        var o2 =EnumSet.allOf(T).stream().filter(e->e.toString().equals( val)).findFirst().orElse(null);
+        if(o2==null)throw new CucumberException("xxxxxxxxxxxxxxxxxxxxxxxx");
+    return o2;
+
+    }
+
 }

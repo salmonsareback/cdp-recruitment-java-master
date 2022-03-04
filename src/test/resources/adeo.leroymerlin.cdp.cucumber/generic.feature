@@ -36,10 +36,10 @@ Feature: Event functionalities
 #      | Old melodies     |         | For aged   | Jacques           |
 #      | Pop 80th         | 3       | [blank]    | Jacques           |
 
-    And this later having members :
-      | name  |
-      | Duke  |
-      | Peter |
+#    And this later having members :
+#      | name  |
+#      | Duke  |
+#      | Peter |
     # Mixer   capitalisation ou non
     Given this list of bands :
       | name           |
@@ -61,6 +61,11 @@ Feature: Event functionalities
       | Crazy  trio    |
       | The black band |
       | Best friends   |
+
+    And some events exist :
+      | Title            | NbStars | comment    | oneEnum |
+      | Hard rock folies | 1       | So noisy ! | Titi    |
+      | Old melodies     |         | For aged   | Toto    |
 
     Then this last list of events :
 #    test when one column is id

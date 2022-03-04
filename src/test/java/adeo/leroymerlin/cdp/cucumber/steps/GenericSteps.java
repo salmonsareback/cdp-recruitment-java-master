@@ -8,6 +8,7 @@ import io.cucumber.java.en.Then;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Id;
 import javax.persistence.PersistenceContext;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -15,7 +16,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static adeo.leroymerlin.cdp.cucumber.steps.CucumberUtils.*;
 import static org.apache.commons.lang3.ArrayUtils.lastIndexOf;
@@ -62,7 +62,7 @@ public class GenericSteps {
             throw new CucumberException("Cucumber table is empty. This step should include a cucumber table where column header is a property.");
         Class<?> clazz = findClassPerNameCanBePlural(entityName);
         // Get real name for identifier
-        var primaryField = getRecursivelySuperClassIdentifier(clazz);
+        var primaryField = getRecursivelySuperClassFieldIdentifier(clazz);
         if (primaryField != null) {
             var sql = "SELECT o FROM " + clazz.getSimpleName() + " o ORDER BY " + primaryField.getName();
             Long countPersisted = (Long) entityManager.createQuery("SELECT COUNT(o) FROM " + clazz.getSimpleName() + " o").getSingleResult();
@@ -98,25 +98,27 @@ public class GenericSteps {
      *
      * @author Loïc Ducatillon
      */
-    @And("this later having [a |an ]?([a-zA-Z]+[a-zA-Z0-9_]*)[s]? :$")
-    public void thisLaterHavingRelationalEntities(String entityName, DataTable table) {
+    @Transactional
+    @And("this later having (finally |)(a |an |)([a-zA-Z]+[a-zA-Z0-9_]*)[s]? :$")
+    public void thisLaterHavingRelationalEntities(String finalRelation, String verbose, String entityName, DataTable table) {
         // Check if previous entity is related to this entity
         Class<?> entityClass = findClassPerNameCanBePlural(entityName);
         var fieldsRelatedEntity = getRecursivelySuperClassDeclaredFields(lastEntity.getClass());
         Field relatedField = fieldsRelatedEntity.stream().filter(field -> field.getGenericType().toString().contains(entityClass.getName())).findFirst().orElse(null);
         if (relatedField == null)
             throw new CucumberException("Entity \"" + lastEntity.getClass().getSimpleName() + "\" has no relation with entity\" " + entityClass.getSimpleName() + "\".");
-//        AtomicReference<Object> lastMatching = null;
-        table.asMaps(String.class, String.class).stream().forEach(entry -> {
+        Object matching = new Object();
+        // Stream doesnt let simply let use matching inside stream
+        for (Map<String, String> entry : table.asMaps(String.class, String.class)) {
+//        table.asMaps(String.class, String.class).stream().forEach(entry -> {
             // Persist entity if not exists
             var entityCriterias = checkAndFormatMapForEntity(entry, entityClass);
-            Object matching = this.findPersistedWithCriterias(entityCriterias, entityClass);
+            matching = this.findPersistedWithCriterias(entityCriterias, entityClass);
             if (matching == null) {
                 // Create it
                 matching = newEntityInstanceFromMap(entry, entityClass);
                 entityManager.persist(matching);
             }
-//            lastMatching.set(matching);
 
             // Link with multiple relations
             Class initClass = relatedField.getType();
@@ -146,7 +148,7 @@ public class GenericSteps {
                     } catch (IntrospectionException ex) {
                         throw new CucumberException("Cucumber could not find setter of \"" + lastEntity.getClass().getSimpleName() + "\" " + "for relation (@ManyToOne or @ManyToMany) to \"" + relatedField.getName() + "\".");
                     }
-                    Collection related;
+                    Collection related = null;
                     try {
                         related = (Collection) getRelation.invoke(lastEntity, new Class[0]);
                     } catch (IllegalAccessException | InvocationTargetException ex) {
@@ -177,10 +179,24 @@ public class GenericSteps {
                 }
             }
 
-        });
-            // Let chaining with 'And related to its otherEntity' by memorizing last entity
-//     TODO store recursively for the last Given  without using stop propagation
-//            lastEntity = lastMatching;
+        }
+        ;
+        // Let chaining with 'And related to its otherEntity' by memorizing last entity
+        if (!finalRelation.equals("finally ")) {
+            // Fetch the full object to force lazy relations and
+            // to avoid exception at next step : Failed to lazily initialize a collection of role could not initialize ...
+
+            Field fieldId = getRecursivelySuperClassFieldIdentifier(matching.getClass());
+            try {
+                Method getId = matching.getClass().getMethod("get" + upperCaseFirstLetter(fieldId.getName()), null);
+                Object id = getId.invoke(matching, null);
+                lastEntity = entityManager.find(entityClass, id);
+
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                lastEntity = matching;
+            }
+
+        }
 
         //Clean out
         entityManager.flush();
@@ -225,4 +241,5 @@ public class GenericSteps {
         if (matchings.size() >= 1) return matchings.get(0);
         return null;
     }
+
 }

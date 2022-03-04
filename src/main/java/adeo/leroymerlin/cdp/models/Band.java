@@ -3,21 +3,22 @@ package adeo.leroymerlin.cdp.models;
 import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-@NamedQuery(name="Band.bandAndAllMembersWithAtLeastOneMemberHasNameLike", query =
-"SELECT DISTINCT b FROM Band b JOIN b.members m  WHERE m.name LIKE :fewLetters")
+@NamedQuery(name = "Band.bandAndAllMembersWithAtLeastOneMemberHasNameLike", query =
+        "SELECT DISTINCT b FROM Band b JOIN b.members m  WHERE m.name LIKE :fewLetters")
 
 
-@NamedQuery(name="Band.bandsWithEventsFromAListOfBandIdentifiers", query=
+@NamedQuery(name = "Band.bandsWithEventsFromAListOfBandIdentifiers", query =
         "SELECT DISTINCT b FROM Band b JOIN FETCH b.events WHERE b.id IN :listOfBandsIdentifiers ")
 
 @Entity
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "name")
-public class Band {
+public class Band implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,15 +26,16 @@ public class Band {
 
     private String name;
 
-    @ManyToMany(fetch=FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JsonIgnore
-    @JoinTable(name="band_members", joinColumns = {@JoinColumn(name="band_id")}, inverseJoinColumns = {@JoinColumn(name="members_id")})
-    private Set<Member> members=new HashSet<>();
+    @JoinTable(name = "band_members", joinColumns = {@JoinColumn(name = "band_id")}, inverseJoinColumns = {@JoinColumn(name = "members_id")})
+    private Set<Member> members = new HashSet<>();
 
     @ManyToMany(mappedBy = "bands")
-    private Set<Event> events=new HashSet<>();
+    private Set<Event> events = new HashSet<>();
 
-    public Band() {}
+    public Band() {
+    }
 
     public Band(Long id, String name) {
         this.id = id;
@@ -41,13 +43,13 @@ public class Band {
     }
 
     public Band(long l, String name, Event event) {
-        this.id=l;
-        this.name=name;
+        this.id = l;
+        this.name = name;
         this.setEvents(Set.of(event));
     }
 
     public Band(String name) {
-        this.name=name;
+        this.name = name;
     }
 
     public Long getId() {
@@ -82,7 +84,7 @@ public class Band {
         this.addMember(member);
     }
 
-    public void addMember(Long memberId){
+    public void addMember(Long memberId) {
         this.addMember(memberId);
     }
 }

@@ -40,7 +40,7 @@ public class CucumberUtils {
             try {
                 assertOneInstanceEqualsOneMapOfFieldsValues(instances.get(i), row, replaceWithEmptyString);
             } catch (AssertionError | CucumberException e) {
-                throw new CucumberException("Cucumber table at row " + (i + 1) + " :\r\n" + e.getMessage());
+                throw new CucumberException("Cucumber table at row " + (i + 1) + " :\r\n" + e);
             }
             i++;
         }
@@ -55,7 +55,7 @@ public class CucumberUtils {
         try {
             instance = entityClass.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new CucumberException("Class " + entityClass + " is missing  null-arg constructor (no arguments).\r\n" + e.getMessage());
+            throw new CucumberException("Class " + entityClass + " is missing  null-arg constructor (no arguments).\r\n" + e);
         }
         Class<?> refl = instance.getClass();
         var paramTypes = new Class[1];
@@ -123,7 +123,7 @@ public class CucumberUtils {
                         var setWithParamString = refl.getMethod(m.getName(), paramTypes);
                         setWithParamString.invoke(instance, cucumberFieldValue);
                     } catch (IllegalArgumentException | InvocationTargetException e) {
-                        throw new CucumberException("Cucumber could call setter for attribute \"" + cucumberFieldName + "\" with String value \"" + cucumberFieldValue + "\" but the error was returned :\r\n " + e.getCause() + "\r\n" + e.getMessage());
+                        throw new CucumberException("Cucumber could call setter for attribute \"" + cucumberFieldName + "\" with String value \"" + cucumberFieldValue + "\" but the error was returned :\r\n " + e.getCause() + "\r\n" + e);
                     } catch (Exception e) {
                         throw new CucumberException("Cucumber failed to use setter for attribute \"" + cucumberFieldName + "\" with param type \"" + paramTypes[0].getName() + "\" for entity \"" + refl.getSimpleName() + "\".\r\n" + "==> Could be solved by overloading setter set" + upperCaseFirstLetter(cucumberFieldName) + " casting string to adequate attribute type. Example :\r\n" + "        public void setOneEnum(String oneEnum){\r\n" + "          this.oneEnum = TestEnum.valueOf(oneEnum);\r\n" + "        }\r\n");
                     }
@@ -148,7 +148,7 @@ public class CucumberUtils {
 //        try {
 //            instance = entityClass.getDeclaredConstructor().newInstance();
 //        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-//            throw new CucumberException("Class " + entityClass + " is missing  null-arg constructor (no arguments).\r\n" + e.getMessage());
+//            throw new CucumberException("Class " + entityClass + " is missing  null-arg constructor (no arguments).\r\n" + e);
 //        }
 //        Class<?> refl = instance.getClass();
 //        var paramTypes = new Class[1];
@@ -238,7 +238,7 @@ public class CucumberUtils {
                 rowNb.getAndIncrement();
                 return newEntityInstanceFromMap(entry, type);
             } catch (AssertionError | CucumberException e) {
-                throw new CucumberException("Cucumber table at row " + rowNb + " :\r\n" + e.getMessage());
+                throw new CucumberException("Cucumber table at row " + rowNb + " :\r\n" + e);
             }
         }).collect(Collectors.toList());
         return entities;
@@ -324,7 +324,7 @@ public class CucumberUtils {
             try {
                 gettedValueOfInstance = getter.invoke(instance, new Class[0]);
             } catch (InvocationTargetException | IllegalAccessException e) {
-                throw new CucumberException("Trying to get value for \"" + cucumberFieldName + "\" failed with error :\r\n" + e.getMessage());
+                throw new CucumberException("Trying to get value for \"" + cucumberFieldName + "\" failed with error :\r\n" + e);
             }
 
             // Try to compare with different numeric and date format
@@ -361,7 +361,7 @@ public class CucumberUtils {
 
                 }
             } catch (Exception e) {
-                throw new CucumberException("Assertion error at column \"" + cucumberFieldName + "\"\n\r" + e.getMessage());
+                throw new CucumberException("Assertion error at column \"" + cucumberFieldName + "\"\n\r" + e);
             }
         }); //row.forEach
     }
@@ -400,7 +400,7 @@ public class CucumberUtils {
         return clazz.getDeclaredField(fieldName);
     }
 
-    public static Field getRecursivelySuperClassIdentifier(Class clazz) {
+    public static Field getRecursivelySuperClassFieldIdentifier(Class clazz) {
         return getRecursivelySuperClassDeclaredFields(clazz).stream().filter(field -> Arrays.stream(field.getAnnotations()).filter(a -> a.annotationType() == Id.class).count() > 0).findFirst().orElse(null);
     }
 }

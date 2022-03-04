@@ -20,9 +20,9 @@ Feature: Event functionalities
       | Old melodies     |         | For aged   | Toto    |
       | Pop 80th         | 3       | [blank]    | Toto    |
 
-#    And this later having manager :
-#      | FirstName |
-#      | Peter     |
+    And this later having finally manager :
+      | FirstName |
+      | Peter     |
 #    the next And this later would be linked to Manager Peter
     # And this later having final manager : ????? to stop propagation
 
@@ -36,7 +36,10 @@ Feature: Event functionalities
 #      | Old melodies     |         | For aged   | Jacques           |
 #      | Pop 80th         | 3       | [blank]    | Jacques           |
 
-
+    And this later having members :
+      | name  |
+      | Duke  |
+      | Peter |
     # Mixer   capitalisation ou non
     Given this list of bands :
       | name           |

@@ -2,7 +2,6 @@ package adeo.leroymerlin.cdp;
 
 import adeo.leroymerlin.cdp.models.Event;
 import adeo.leroymerlin.cdp.repositories.EventRepository;
-import adeo.leroymerlin.cdp.services.EventService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

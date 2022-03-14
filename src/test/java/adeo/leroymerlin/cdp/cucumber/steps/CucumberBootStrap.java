@@ -1,16 +1,29 @@
 package adeo.leroymerlin.cdp.cucumber.steps;
 
+import io.cucumber.core.exception.CucumberException;
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @CucumberContextConfiguration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
 public class CucumberBootStrap {
+
   private static final Logger LOG = LoggerFactory.getLogger(CucumberBootStrap.class);
+
+  // Get package of models from application.properties file
+//  @Value("${cucumber.utils.models.package}")
+//  String packageModelsPath;
+
+
 //
 //    /**
 //     * Need this method so the cucumber will recognize this class as glue and load spring context configuration

@@ -1,37 +1,24 @@
 package adeo.leroymerlin.cdp;
 
-import adeo.leroymerlin.cdp.contollers.EventController;
 import adeo.leroymerlin.cdp.models.Band;
 import adeo.leroymerlin.cdp.models.Event;
-import adeo.leroymerlin.cdp.models.TestEnum;
 import adeo.leroymerlin.cdp.repositories.BandRepository;
 import adeo.leroymerlin.cdp.repositories.EventRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Repository;
-import org.springframework.test.annotation.TestAnnotationUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.Optional;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;

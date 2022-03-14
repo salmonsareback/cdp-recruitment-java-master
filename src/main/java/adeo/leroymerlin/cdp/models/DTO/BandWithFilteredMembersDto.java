@@ -2,8 +2,6 @@ package adeo.leroymerlin.cdp.models.DTO;
 
 import adeo.leroymerlin.cdp.models.Band;
 
-import java.io.Serializable;
-
 public class BandWithFilteredMembersDto extends Band {
     private Integer nbOfMembers;
 

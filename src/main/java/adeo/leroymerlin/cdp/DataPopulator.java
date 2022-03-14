@@ -1,6 +1,5 @@
 package adeo.leroymerlin.cdp;
 
-import adeo.leroymerlin.cdp.models.Event;
 import adeo.leroymerlin.cdp.models.Member;
 import adeo.leroymerlin.cdp.repositories.BandRepository;
 import adeo.leroymerlin.cdp.repositories.EventRepository;
@@ -8,7 +7,6 @@ import adeo.leroymerlin.cdp.repositories.MemberRepository;
 import adeo.leroymerlin.cdp.services.BandService;
 import adeo.leroymerlin.cdp.services.EventService;
 import com.github.javafaker.Faker;
-import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

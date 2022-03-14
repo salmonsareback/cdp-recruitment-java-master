@@ -1,10 +1,11 @@
 package adeo.leroymerlin.cdp.cucumber.steps;
 
-import adeo.leroymerlin.cdp.models.TestEnum;
 import com.sun.istack.NotNull;
 import io.cucumber.core.exception.CucumberException;
 import io.cucumber.datatable.DataTable;
+import org.springframework.beans.factory.annotation.Value;
 
+import javax.annotation.Resource;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.beans.IntrospectionException;
@@ -22,8 +23,6 @@ import static java.lang.Integer.parseInt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CucumberUtils {
-    // TODO fetch models package
-    static String packageModelsPath = "adeo.leroymerlin.cdp.models";
 
     public static <T> void assertMappedCucumberTableEqualEntityInstances(List<T> instances, @NotNull List<Map<String, String>> mappedCucumberTable) throws Exception {
         assertMappedCucumberTableEqualEntityInstances(instances, mappedCucumberTable, "[blank]");
@@ -187,13 +186,13 @@ public class CucumberUtils {
             // Check if replaceWithEmptyString
             if (cucumberFieldValue == null) {
                 returned.put(cucumberFieldName, "null");
-            }else if(cucumberFieldValue.trim().equals(replaceWithEmptyString)) {
+            } else if (cucumberFieldValue.trim().equals(replaceWithEmptyString)) {
                 returned.put(cucumberFieldName, "\"\"");
             } else {
                 // Check if the value should be quoted or not
-                if (fieldOfClass.getType() == String.class || fieldOfClass.getType() == char.class || fieldOfClass.getType() == Character.class ) {
+                if (fieldOfClass.getType() == String.class || fieldOfClass.getType() == char.class || fieldOfClass.getType() == Character.class) {
                     returned.put(cucumberFieldName, "'" + cucumberFieldValue + "'");
-                }else if( fieldOfClass.getType().getSuperclass() == Enum.class){
+                } else if (fieldOfClass.getType().getSuperclass() == Enum.class) {
                     // TODO implemented if @Enumerated(EnumType.STRING)
                     returned.put(cucumberFieldName, "'" + cucumberFieldValue + "'");
                     // Cope with Enums
@@ -254,15 +253,16 @@ public class CucumberUtils {
         final String[] entityNameSingular = new String[1];
         potentialClasses.stream().forEach(name -> {
             try {
-                Class.forName(packageModelsPath + "." + name);
+                Class.forName(packageModelPath() + "." + name);
                 entityNameSingular[0] = name;
             } catch (Exception e) {
             }
         });
         if (entityNameSingular[0] == null)
-            throw new CucumberException("No entity class exists for \"" + packageModelsPath + "." + entityName + "\" (plural authorized).");
+            throw new CucumberException("No entity class exists for \"" + entityName + "\" (plural authorized) in package \"" + packageModelPath() + "\".\r\n" +
+                    "Entity could not exist or package is not declared properly, check or set cucumber.utils.models.package in application.properties.");
         try {
-            Class<?> type = Class.forName(packageModelsPath + "." + entityNameSingular[0]);
+            Class<?> type = Class.forName(packageModelPath() + "." + entityNameSingular[0]);
             return type;
         } catch (Exception e) {
             throw new CucumberException("No entity class exists for \"" + entityName + "\" (plural authorized).");
@@ -348,7 +348,8 @@ public class CucumberUtils {
                             assertThat(gettedValueOfInstance).isEqualTo(Boolean.parseBoolean(cucumberFieldValue));
                             break;
                         case "BigDecimal":
-                            assertThat(gettedValueOfInstance).isEqualTo(new BigDecimal(cucumberFieldValue));
+                            if (new BigDecimal(cucumberFieldValue).compareTo((BigDecimal) gettedValueOfInstance) != 0) // Let compare 2 bigdecimal with different leading zeros
+                                assertThat(gettedValueOfInstance).isEqualTo(new BigDecimal(cucumberFieldValue));
                             break;
                         case "LocalDate":
                             assertThat(gettedValueOfInstance).isEqualTo(LocalDate.parse(cucumberFieldValue));
@@ -368,7 +369,7 @@ public class CucumberUtils {
     }
 
     //     List of fields including those inherited
-    static List<Field> getRecursivelySuperClassDeclaredFields(Class clazz) {
+    public static List<Field> getRecursivelySuperClassDeclaredFields(Class clazz) {
         if (clazz == null) {
             return Collections.emptyList();
         }
@@ -405,12 +406,27 @@ public class CucumberUtils {
         return getRecursivelySuperClassDeclaredFields(clazz).stream().filter(field -> Arrays.stream(field.getAnnotations()).filter(a -> a.annotationType() == Id.class).count() > 0).findFirst().orElse(null);
     }
 
-    private static <T extends Enum<T>> Object getValOfEnumType(Class T, String val){
+    private static <T extends Enum<T>> Object getValOfEnumType(Class T, String val) {
         // TODO voir https://tomee.apache.org/examples-trunk/jpa-enumerated/
-        var o2 =EnumSet.allOf(T).stream().filter(e->e.toString().equals( val)).findFirst().orElse(null);
-        if(o2==null)throw new CucumberException("xxxxxxxxxxxxxxxxxxxxxxxx");
-    return o2;
+        var o2 = EnumSet.allOf(T).stream().filter(e -> e.toString().equals(val)).findFirst().orElse(null);
+        if (o2 == null) throw new CucumberException("xxxxxxxxxxxxxxxxxxxxxxxx");
+        return o2;
 
     }
 
+
+    //  @Bean
+//  private String getModelPackage() {
+    // Value could be listed in application.properties file
+    private static String packageModelPath() {
+        List<Package> packages = Arrays.stream(Package.getPackages()).filter((p -> p.getName().endsWith("models"))).collect(Collectors.toList());
+        String msg = "\r\nCheck or set cucumber.utils.models.package in application.properties.";
+        if (packages.size() == 0) {
+            throw new CucumberException("No package containing \"models\" was found in project" + msg);
+        } else if (packages.size() > 1) {
+            throw new CucumberException("Several packages containing \"models\" where found in project [" + packages.stream().map(p -> p.getName()).collect(Collectors.joining(", ")) + "]" + msg);
+        }
+        return packages.get(0).getName();
+    }
 }
+

@@ -1,7 +1,5 @@
 package adeo.leroymerlin.cdp.models;
 
-import adeo.leroymerlin.cdp.models.Band;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

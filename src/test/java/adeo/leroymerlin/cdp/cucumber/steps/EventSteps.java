@@ -2,8 +2,6 @@ package adeo.leroymerlin.cdp.cucumber.steps;
 
 import adeo.leroymerlin.cdp.models.Event;
 import adeo.leroymerlin.cdp.repositories.EventRepository;
-import io.cucumber.core.exception.CucumberException;
-import io.cucumber.datatable.DataTable;
 import io.cucumber.java.DataTableType;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -13,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

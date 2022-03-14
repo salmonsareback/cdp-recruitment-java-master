@@ -6,9 +6,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class ManagerSerializer extends StdSerializer<Manager> {
 

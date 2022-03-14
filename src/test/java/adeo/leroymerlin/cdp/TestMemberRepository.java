@@ -1,8 +1,6 @@
 package adeo.leroymerlin.cdp;
 
-import adeo.leroymerlin.cdp.models.Band;
 import adeo.leroymerlin.cdp.models.Member;
-import adeo.leroymerlin.cdp.repositories.BandRepository;
 import adeo.leroymerlin.cdp.repositories.MemberRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

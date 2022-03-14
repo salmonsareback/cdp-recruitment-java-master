@@ -1,4 +1,4 @@
-package adeo.leroymerlin.cdp.cucumber.steps;
+package adeo.leroymerlin.cdp.cucumber;
 
 import io.cucumber.core.exception.CucumberException;
 import org.junit.jupiter.api.Test;

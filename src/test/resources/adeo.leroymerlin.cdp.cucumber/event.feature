@@ -3,7 +3,7 @@ Feature: Event functionalities
 
   Scenario: sanity check of cucumber
 
-    Given the following list of events:
+    Given this list of events :
       | Title             |  NbStars | Comment     |id|
       | Jazz in Lille     |  5       |             |1 |
       | Hard rock folies  |  1       | So noisy !  |2 |
@@ -13,7 +13,7 @@ Feature: Event functionalities
 
     Then the events count is 4
 
-    Then the last events can be found :
+    Then  this last list of events :
       | Title            | NbStars | Comment    |
       | Jazz in Lille    | 5       |            |
       | Hard rock folies | 1       | So noisy ! |

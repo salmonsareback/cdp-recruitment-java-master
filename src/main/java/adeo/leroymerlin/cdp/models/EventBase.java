@@ -16,9 +16,6 @@ public class EventBase {
 
     private String comment;
 
-    @Enumerated(EnumType.STRING)
-    private TestEnum oneEnum;
-
     @ManyToOne
     @JsonSerialize(using = ManagerSerializer.class)
     @JoinColumn(name = "manager_id")
@@ -73,19 +70,7 @@ public class EventBase {
         return comment;
     }
 
-    public TestEnum getOneEnum() {
-        return oneEnum;
-    }
-
-    public void setOneEnum(TestEnum oneEnum) {
-        this.oneEnum = oneEnum;
-    }
-
-    public void setOneEnum(String oneEnum) {
-        this.oneEnum = TestEnum.valueOf(oneEnum);
-    }
-
-    public Integer getNbStars() {
+   public Integer getNbStars() {
         return nbStars;
     }
 
